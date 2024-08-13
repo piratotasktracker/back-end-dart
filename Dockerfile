@@ -4,7 +4,6 @@ FROM dart:stable AS build
 # Resolve app dependencies.
 WORKDIR /app
 COPY pubspec.* ./
-COPY swagger.yaml /app/swagger.yaml
 RUN dart pub get
 
 # Copy app source code (except anything in .dockerignore) and AOT compile app.
@@ -16,6 +15,7 @@ RUN dart compile exe bin/server.dart -o bin/server
 FROM scratch
 COPY --from=build /runtime/ /
 COPY --from=build /app/bin/server /app/bin/
+COPY swagger.yaml /app/swagger.yaml
 
 # Start server.
 EXPOSE 8080
