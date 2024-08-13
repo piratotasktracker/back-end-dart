@@ -1,0 +1,40 @@
+name: Dart Backend CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      MONGO_DB_URI: ${{ secrets.MONGO_DB_URI }}
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      DB_TYPE: ${{ secrets.DB_TYPE }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Create .env file
+        run: |
+          echo "MONGO_DB_URI=${{ secrets.MONGO_DB_URI }}" > .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "DB_TYPE=${{ secrets.DB_TYPE }}" >> .env
+
+      - name: Get dependencies
+        run: dart pub get
+
+      - name: Run tests
+        run: dart test
+
+      - name: Run Dart backend
+        run: dart run bin/server.dart
