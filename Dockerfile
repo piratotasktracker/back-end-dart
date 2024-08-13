@@ -4,6 +4,7 @@ FROM dart:stable AS build
 # Resolve app dependencies.
 WORKDIR /app
 COPY pubspec.* ./
+COPY swagger.yaml /app/swagger.yaml
 RUN dart pub get
 
 # Copy app source code (except anything in .dockerignore) and AOT compile app.
