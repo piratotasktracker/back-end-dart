@@ -15,7 +15,14 @@ RUN dart compile exe bin/server.dart -o bin/server
 FROM scratch
 COPY --from=build /runtime/ /
 COPY --from=build /app/bin/server /app/bin/
+COPY entrypoint.sh /app/
+RUN chmod +x /app/entrypoint.sh
 
-# Start server.
+# Define environment variables (example values, adjust as needed)
+ENV MONGO_DB_URI="mongodb://servise-executor:123321@ac-ecmbsqn-shard-00-01.ixpqeoy.mongodb.net:27017,ac-ecmbsqn-shard-00-00.ixpqeoy.mongodb.net:27017,ac-ecmbsqn-shard-00-02.ixpqeoy.mongodb.net:27017/testdb?ssl=true&replicaSet=atlas-3qr3g8-shard-0&authSource=admin&retryWrites=true&w=majority"
+ENV JWT_SECRET_KEY="QweEWsdQwdsdCalglcerkmSLfWdalsd2399ssd3f9wS"
+ENV DB_TYPE="MONGODB"
+
+# Start server using entrypoint script.
 EXPOSE 8080
-CMD ["/app/bin/server"]
+ENTRYPOINT ["/app/entrypoint.sh"]
