@@ -1,10 +1,11 @@
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
-import 'package:dotenv/dotenv.dart';
+
+import 'environment.dart';
 
 class JWTProvider{
 
   static String issueJwt(String userId) {
-    final String secretKey = (DotEnv()..load()).getOrElse('JWT_SECRET_KEY', () => '');
+    final String secretKey = Environment.getSecretKey();
     final jwt = JWT(
       {
         'id': userId,

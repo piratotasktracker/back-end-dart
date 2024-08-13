@@ -1,18 +1,17 @@
 import 'dart:io';
 
-import 'package:dotenv/dotenv.dart';
-
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 
 import 'middlewares/headers_middleware.dart';
 import 'mongo_connection.dart';
 import 'router/router.dart';
+import 'utils/environment.dart';
 import 'utils/swagger_handler.dart';
 
 void main(List<String> args) async {
 
-  final String mongoConnectionString = (DotEnv()..load()).getOrElse('MONGO_DB_URI', () => '');
+  String mongoConnectionString = Environment.getMongoURI();
   if (mongoConnectionString.isNotEmpty){
     final MongoConnection connection = MongoConnection();
     await connection.initialize(connectionString: mongoConnectionString);

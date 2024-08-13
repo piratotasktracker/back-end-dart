@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
-import 'package:dotenv/dotenv.dart';
 import 'package:shelf/shelf.dart';
 
 import '../models/result_models.dart';
+import '../utils/environment.dart';
 
 Middleware checkAuthorization() {
   return (Handler handler) {
@@ -16,7 +16,7 @@ Middleware checkAuthorization() {
       }
 
       final token = authHeader.substring(7);
-      final secretKey = (DotEnv()..load()).getOrElse('JWT_SECRET_KEY', () => '');
+      final secretKey = Environment.getSecretKey();
 
       try {
         JWT.verify(token, SecretKey(secretKey));

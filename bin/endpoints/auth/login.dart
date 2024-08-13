@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:bcrypt/bcrypt.dart';
-import 'package:dotenv/dotenv.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 
@@ -10,12 +9,13 @@ import '../../models/login_model.dart';
 import '../../models/user_db_model.dart';
 import '../../mongo_connection.dart';
 import '../../utils/constants.dart';
+import '../../utils/environment.dart';
 import '../../utils/handler_interface.dart';
 import '../../utils/jwt_provider.dart';
 
 class Login {
   static IPostHandler call(){
-    final String dbType = (DotEnv()..load()).getOrElse('DB_TYPE', () => '');
+    final String dbType = Environment.getDBType();
     switch (dbType){
       case "MONGODB":{
         return LoginMongo();
