@@ -2,15 +2,25 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'result_models.g.dart';
 
-@JsonSerializable()
-class ErrorMessage{
-  const ErrorMessage({
-    required this.message,
+abstract class Result {
+
+  final int statusCode;
+  final String result;
+
+  const Result({
+    required this.result,
     required this.statusCode
   });
 
-  final int statusCode;
-  final String message;
+} 
+
+
+@JsonSerializable()
+class ErrorMessage extends Result{
+  const ErrorMessage({
+    required super.result,
+    required super.statusCode
+  });
 
   factory ErrorMessage.fromJson(Map<String, dynamic> json) => _$ErrorMessageFromJson(json);
 
@@ -19,14 +29,11 @@ class ErrorMessage{
 }
 
 @JsonSerializable()
-class SuccessMessage{
+class SuccessMessage extends Result{
   const SuccessMessage({
-    required this.result,
-    required this.statusCode
+    required super.result,
+    required super.statusCode
   });
-
-  final int statusCode;
-  final String result;
 
   factory SuccessMessage.fromJson(Map<String, dynamic> json) => _$SuccessMessageFromJson(json);
 

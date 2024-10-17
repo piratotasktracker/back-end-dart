@@ -12,33 +12,40 @@ UserDBModel _$UserDBModelFromJson(Map<String, dynamic> json) => UserDBModel(
       email: json['email'] as String,
       fullName: json['full_name'] as String,
       password: json['password'] as String,
-      role: (json['role'] as num).toInt(),
+      role: $enumDecode(_$PermissionLevelEnumMap, json['role']),
     );
 
 Map<String, dynamic> _$UserDBModelToJson(UserDBModel instance) =>
     <String, dynamic>{
-      '_id': const ObjectIdConverter().toJson(instance.id),
       'email': instance.email,
       'avatar': instance.avatar,
       'full_name': instance.fullName,
+      'role': _$PermissionLevelEnumMap[instance.role]!,
+      '_id': const ObjectIdConverter().toJson(instance.id),
       'password': instance.password,
-      'role': instance.role,
     };
 
-UserDTO _$UserDTOFromJson(Map<String, dynamic> json) => UserDTO(
+const _$PermissionLevelEnumMap = {
+  PermissionLevel.unknown: 0,
+  PermissionLevel.executor: 1,
+  PermissionLevel.manager: 2,
+  PermissionLevel.administrator: 3,
+  PermissionLevel.owner: 4,
+};
+
+UserResponse _$UserResponseFromJson(Map<String, dynamic> json) => UserResponse(
       avatar: json['avatar'] as String?,
       id: json['id'] as String,
       email: json['email'] as String,
       fullName: json['full_name'] as String,
-      password: json['password'] as String,
-      role: (json['role'] as num).toInt(),
+      role: $enumDecode(_$PermissionLevelEnumMap, json['role']),
     );
 
-Map<String, dynamic> _$UserDTOToJson(UserDTO instance) => <String, dynamic>{
-      'id': instance.id,
+Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
+    <String, dynamic>{
       'email': instance.email,
       'avatar': instance.avatar,
       'full_name': instance.fullName,
-      'password': instance.password,
-      'role': instance.role,
+      'role': _$PermissionLevelEnumMap[instance.role]!,
+      'id': instance.id,
     };

@@ -12,6 +12,7 @@ import '../../utils/constants.dart';
 import '../../utils/environment.dart';
 import '../../utils/handler_interface.dart';
 import '../../utils/jwt_provider.dart';
+import '../../utils/permission_level.dart';
 
 class Login {
   static IPostHandler call(){
@@ -37,19 +38,19 @@ class LoginMongo implements IPostHandler{
       if(validation.$1){
         final userRaw = await connection.users.findOne(where.eq('email', credentials.email));
         if (userRaw == null) {
-          return Response.notFound(json.encode(ErrorMessage(message: "User not found", statusCode: 404).toJson()));
+          return Response.notFound(json.encode(ErrorMessage(result: "User not found", statusCode: 404).toJson()));
         }
-        var user = UserDBModel.fromJson(userRaw);
+        final user = UserDBModel.fromJson(userRaw);
         if (BCrypt.checkpw(credentials.password, user.password)) {
-          final token = JWTProvider.issueJwt(user.id);
+          final token = JWTProvider.issueJwt(user.id, user.role);
           return Response.ok(json.encode({'token': token}));
         }
-        return Response(400, body: json.encode(ErrorMessage(message: "Invalid e-mail or password", statusCode: 400).toJson()));
+        return Response(400, body: json.encode(ErrorMessage(result: "Invalid e-mail or password", statusCode: 400).toJson()));
       }else{
         return Response(validation.$2 != null ? validation.$2!.statusCode : 400, body: validation.$2?.toJson().toString());
       }
     }catch(e){
-      return Response.internalServerError(body: json.encode(ErrorMessage(message: 'Error fetching user: $e', statusCode: 500).toJson()));
+      return Response.internalServerError(body: json.encode(ErrorMessage(result: 'Error fetching user: $e', statusCode: 500).toJson()));
     }
   }
 
@@ -69,11 +70,15 @@ class LoginMongo implements IPostHandler{
       if(data.password.isEmpty){
         messageMap["password"]="Can not be empty";
       }
-      return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(message: messageMap.toString(), statusCode: 400));
+      return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(result: messageMap.toString(), statusCode: 400));
     }else{
-      return (false, ErrorMessage(message: "Bad request", statusCode: 400));
+      return (false, ErrorMessage(result: "Bad request", statusCode: 400));
     }
   }
+  
+  @override
+  PermissionLevel get permissionLevel => PermissionLevel.unknown;
+
 }
 
 class LoginProstgre implements IPostHandler{
@@ -92,4 +97,7 @@ class LoginProstgre implements IPostHandler{
     // TODO: implement validate
     throw UnimplementedError();
   }
+
+  @override
+  PermissionLevel get permissionLevel => PermissionLevel.unknown;
 }

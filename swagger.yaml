@@ -25,7 +25,7 @@ components:
       properties:
         statusCode:
           type: integer
-        message:
+        result:
           type: string
     LoginModel:
       type: object
@@ -41,6 +41,21 @@ components:
           type: string
         description:
           type: string
+    DBTaskModel:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        linkedTasks: 
+          type: list
+        createdById:
+          type: string
+        assigneeId:
+          type: string
+        projectId:
+          type: string
     SignUpModel:
       type: object
       properties:
@@ -55,7 +70,7 @@ components:
           type: string
         role:
           type: integer
-    UserDTO:
+    UserResponse:
       type: object
       properties:
         id:
@@ -66,8 +81,6 @@ components:
           type: string
           nullable: true
         fullName:
-          type: string
-        password:
           type: string
         role:
           type: integer
@@ -112,7 +125,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserDTO'
+                  $ref: '#/components/schemas/UserResponse'
         '401':
           description: Unauthorized
           content:
@@ -138,7 +151,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDTO'
+                $ref: '#/components/schemas/UserResponse'
         '401':
           description: Unauthorized
           content:
@@ -239,7 +252,7 @@ paths:
         - bearerAuth: []
       responses:
         '200':
-          description: A single user
+          description: A single project
           content:
             application/json:
               schema:
@@ -300,6 +313,149 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /tasks/{id}:
+    get:
+      summary: Get a task by ID
+      tags: 
+        - Task Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A single task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      summary: Update task
+      tags: 
+        - Task Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DBTaskModel'
+      responses:
+        '200':
+          description: Task updated successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    delete:
+      summary: Delete task
+      tags: 
+        - Task Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task deleted successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /projects/{id}/tasks/:
+    get:
+      summary: Get a tasks by project id
+      tags: 
+        - Project Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of tasks
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /tasks:
+    post:
+      summary: Create task
+      tags: 
+        - Task Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DBTaskModel'
+      responses:
+        '200':
+          description: Task created successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    get:
+      summary: Get tasks
+      tags: 
+        - Task Management
+      responses:
+        '200':
+          description: Tasks list
         '401':
           description: Unauthorized
           content:

@@ -9,6 +9,7 @@ import '../../mongo_connection.dart';
 import '../../utils/constants.dart';
 import '../../utils/environment.dart';
 import '../../utils/handler_interface.dart';
+import '../../utils/permission_level.dart';
 
 class SignUp {
   static IPostHandler call(){
@@ -43,13 +44,13 @@ class SignUpMongo implements IPostHandler{
             "role": signUpRequest.role
           });
         }else{
-          return Response(400, body: json.encode(ErrorMessage(message: "User exists", statusCode: 400).toJson()));
+          return Response(400, body: json.encode(ErrorMessage(result: "User exists", statusCode: 400).toJson()));
         }
         return Response.ok( json.encode({"result": "success"}));
       }
       return Response(validation.$2 != null ? validation.$2!.statusCode : 400, body: validation.$2?.toJson().toString());
     }catch(e){
-      return Response.internalServerError(body: json.encode(ErrorMessage(message: e.toString(), statusCode: 500).toJson()));
+      return Response.internalServerError(body: json.encode(ErrorMessage(result: e.toString(), statusCode: 500).toJson()));
     }
   }
 
@@ -75,11 +76,14 @@ class SignUpMongo implements IPostHandler{
       if(data.role == null || data.role! > 3){
         messageMap["role"] = "Can not be empty on higher than 3";
       }
-      return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(message: messageMap.toString(), statusCode: 400));
+      return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(result: messageMap.toString(), statusCode: 400));
     }else{
-      return (false, ErrorMessage(message: "Bad request", statusCode: 400));
+      return (false, ErrorMessage(result: "Bad request", statusCode: 400));
     }
   }
+
+  @override
+  PermissionLevel get permissionLevel => PermissionLevel.unknown;
 }
 
 class SignUpProstgre implements IPostHandler{
@@ -98,4 +102,7 @@ class SignUpProstgre implements IPostHandler{
     // TODO: implement validate
     throw UnimplementedError();
   }
+
+  @override
+  PermissionLevel get permissionLevel => PermissionLevel.unknown;
 }
