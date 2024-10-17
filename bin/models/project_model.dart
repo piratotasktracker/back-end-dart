@@ -2,23 +2,54 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
 import '../utils/object_id_converter.dart';
+import 'user_db_model.dart';
 
 part 'project_model.g.dart';
 
-@JsonSerializable()
-class DBProjectModel {
+abstract class IProjectModel{
 
-  const DBProjectModel({
+  @JsonKey(name: "name")
+  final String name;
+  @JsonKey(name: "description")
+  final String description;
+
+  const IProjectModel({
     required this.name,
     this.description = '',
   });
+}
 
-  final String name;
-  final String description;
+abstract class IExtendedProjectModel extends IProjectModel{
   
-  factory DBProjectModel.fromJson(Map<String, dynamic> json) => _$DBProjectModelFromJson(json);
+  @JsonKey(name: "createdAt")
+  final String createdAt;
+  @JsonKey(name: "updatedAt")
+  final String updatedAt;
 
-  Map<String, dynamic> toJson() => _$DBProjectModelToJson(this);
+  const IExtendedProjectModel({
+    required this.createdAt,
+    required this.updatedAt,
+    required super.name,
+    super.description = '',
+  });
+}
+
+
+@JsonSerializable()
+class CreateProjectModel extends IProjectModel{
+
+  const CreateProjectModel({
+    required super.name,
+    super.description,
+    required this.teamMembers,
+  });
+
+  @JsonKey(name: "teamMembers")
+  final List<String> teamMembers;
+  
+  factory CreateProjectModel.fromJson(Map<String, dynamic> json) => _$CreateProjectModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CreateProjectModelToJson(this);
 
   Map<String, dynamic> dbCreate({
     required String createdAt, 
@@ -33,9 +64,6 @@ class DBProjectModel {
   Map<String, dynamic> dbUpdate({
     required String updatedAt,
   }){
-    print(toJson()..addAll({
-      "updatedAt": updatedAt
-    }));
     return toJson()..addAll({
       "updatedAt": updatedAt
     });
@@ -43,34 +71,30 @@ class DBProjectModel {
 }
 
 @JsonSerializable()
-class ProjectDBModel{
+class ProjectDBModel extends IExtendedProjectModel{
   @JsonKey(name: '_id')
   @ObjectIdConverter()
   final String id;
-  @JsonKey(name: "name")
-  final String name;
-  @JsonKey(name: "description")
-  final String description;
-  @JsonKey(name: "createdAt")
-  final String createdAt;
-  @JsonKey(name: "updatedAt")
-  final String updatedAt;
+  @JsonKey(name: "teamMembers")
+  final List<String> teamMembers;
 
   const ProjectDBModel({
-    required this.name,
+    required super.name,
     required this.id,
-    required this.description,
-    required this.createdAt,
-    required this.updatedAt,
+    required super.description,
+    required super.createdAt,
+    required super.updatedAt,
+    required this.teamMembers,
   });
 
-  ProjectResponse toProjectResponse(){
+  ProjectResponse toProjectResponse(List<UserResponse> teamMembers){
     return ProjectResponse(
       name: name, 
       id: id, 
       description: description, 
       createdAt: createdAt, 
       updatedAt: updatedAt, 
+      teamMembers: teamMembers,
     );
   }
 
@@ -81,24 +105,19 @@ class ProjectDBModel{
 }
 
 @JsonSerializable()
-class ProjectResponse{
+class ProjectResponse extends IExtendedProjectModel {
   @JsonKey(name: 'id')
   final String id;
-  @JsonKey(name: "name")
-  final String name;
-  @JsonKey(name: "description")
-  final String description;
-  @JsonKey(name: "createdAt")
-  final String createdAt;
-  @JsonKey(name: "updatedAt")
-  final String updatedAt;
+  @JsonKey(name: "teamMembers")
+  final List<UserResponse> teamMembers;
 
   const ProjectResponse({
-    required this.name,
+    required super.name,
     required this.id,
-    required this.description,
-    required this.createdAt,
-    required this.updatedAt,
+    required super.description,
+    required super.createdAt,
+    required super.updatedAt,
+    required this.teamMembers,
   });
 
   factory ProjectResponse.fromJson(Map<String, dynamic> json) => _$ProjectResponseFromJson(json);

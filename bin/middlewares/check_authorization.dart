@@ -12,17 +12,20 @@ Middleware checkAuthorization() {
 
       final authHeader = request.headers['Authorization'];
       if (authHeader == null || !authHeader.startsWith('Bearer ')) {
-        return Response.forbidden(json.encode(ErrorMessage(message: 'Authorization header is missing or invalid', statusCode: 403).toJson()));
+        return Response.forbidden(json.encode(ErrorMessage(result: 'Authorization header is missing or invalid', statusCode: 403).toJson()));
       }
 
       final token = authHeader.substring(7);
       final secretKey = Environment.getSecretKey();
 
       try {
-        JWT.verify(token, SecretKey(secretKey));
-        return await handler(request);
+        final session = JWT.verify(token, SecretKey(secretKey));
+        return await handler(request.change(context: {
+          'userId': (session.payload as Map<String, dynamic>)["id"],
+          'permissionLevel': (session.payload as Map<String, dynamic>)["permissionLevel"]
+        }));
       } catch (e) {
-        return Response.forbidden(json.encode(ErrorMessage(message: 'Invalid or expired token', statusCode: 403).toJson()));
+        return Response.forbidden(json.encode(ErrorMessage(result: 'Invalid or expired token', statusCode: 403).toJson()));
       }
       
     };

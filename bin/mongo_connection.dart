@@ -17,10 +17,13 @@ class MongoConnection{
   DbCollection get users => db.collection(_Collection.users);
 
   DbCollection get projects => db.collection(_Collection.projects);
+
+  DbCollection get tasks => db.collection(_Collection.tasks);
   
 }
 
 class _Collection{
   static const String users = "users";
   static const String projects = "projects";
+  static const String tasks = "tasks";
 }
