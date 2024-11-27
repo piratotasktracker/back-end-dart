@@ -14,6 +14,7 @@ import '../endpoints/tasks/get_task.dart';
 import '../endpoints/tasks/get_tasks.dart';
 import '../endpoints/projects/get_tasks_by_project_id.dart';
 import '../endpoints/tasks/update_task.dart';
+import '../endpoints/users/get_me.dart';
 import '../endpoints/users/get_user.dart';
 import '../endpoints/users/get_users.dart';
 import '../middlewares/check_authorization.dart';
@@ -50,6 +51,8 @@ class AppRouter{
       .addHandler(GetUsers.call().handler(connection: connection)));
     router.get(AppRoutes.user, Pipeline().addMiddleware(checkAuthorization()) 
       .addHandler(GetUser.call().handler(connection: connection)));
+    router.get(AppRoutes.me, Pipeline().addMiddleware(checkAuthorization()) 
+      .addHandler(GetMe.call().handler(connection: connection)));
 
     //project management
     router.post(AppRoutes.projects, Pipeline().addMiddleware(checkAuthorization())
@@ -93,6 +96,7 @@ class AppRoutes{
   static const String checkAlive = '/';
   static const String users = '/users';
   static const String user = '/users/<id>';
+  static const String me = '/me';
   static const String projects = '/projects';
   static const String project = '/projects/<id>';
   static const String task = '/tasks/<id>';

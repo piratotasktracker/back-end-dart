@@ -158,6 +158,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
+  /me:
+    get:
+      summary: Get me
+      tags: 
+        - User Management
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A single user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
   /signUp:
     post:
       summary: Sign up a new user
