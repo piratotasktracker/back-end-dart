@@ -9,6 +9,7 @@ import 'router/router.dart';
 import 'utils/environment.dart';
 import 'utils/swagger_handler.dart';
 
+/// TODO: https://pub.dev/packages/flutter_quill/score
 void main(List<String> args) async {
 
   String mongoConnectionString = Environment.getMongoURI();
@@ -26,7 +27,7 @@ void main(List<String> args) async {
       .addMiddleware(addContentType('application/json'))
       .addHandler(handler);
 
-    final port = int.parse(Platform.environment['PORT'] ?? '8080');
+    final port = int.parse(Platform.environment['PORT'] ?? '8081');
     final server = await serve(pipeline, ip, port);
     print('Server listening on port ${server.port}');
     ProcessSignal.sigint.watch().listen((signal) async {

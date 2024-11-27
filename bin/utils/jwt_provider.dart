@@ -8,6 +8,7 @@ class JWTProvider{
   static String issueJwt(String userId, PermissionLevel permissionLevel) {
     final String secretKey = Environment.getSecretKey();
     final jwt = JWT(
+      
       {
         'id': userId,
         'permissionLevel': permissionLevel.value, 
