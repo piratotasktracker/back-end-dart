@@ -1,10 +1,9 @@
-
-
 import 'package:shelf/shelf.dart';
 
-import '../models/result_models.dart';
+
 import '../mongo_connection.dart';
-import 'permission_level.dart';
+import '../validators/validator_interface.dart';
+import '../utils/permission_level.dart';
 
 abstract interface class IHandler {
   
@@ -20,8 +19,8 @@ abstract interface class IHandler {
 
 abstract interface class IPostHandler extends IHandler{
 
-  (bool, ErrorMessage?) validate(dynamic data);
+  IValidator validator;
 
-  IPostHandler({required super.permissionLevel});
+  IPostHandler({required super.permissionLevel, required this.validator});
 
 }

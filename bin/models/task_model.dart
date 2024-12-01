@@ -29,9 +29,9 @@ abstract class ITaskModel{
 }
 
 @JsonSerializable()
-class CreateTaskModel extends ITaskModel{
+class TaskRequest extends ITaskModel{
 
-  const CreateTaskModel({
+  const TaskRequest({
     required super.name,
     required super.createdById,
     required super.assigneeId,
@@ -42,9 +42,9 @@ class CreateTaskModel extends ITaskModel{
 
   final List<String> linkedTasks;
   
-  factory CreateTaskModel.fromJson(Map<String, dynamic> json) => _$CreateTaskModelFromJson(json);
+  factory TaskRequest.fromJson(Map<String, dynamic> json) => _$TaskRequestFromJson(json);
 
-  Map<String, dynamic> toJson() => _$CreateTaskModelToJson(this);
+  Map<String, dynamic> toJson() => _$TaskRequestToJson(this);
 
   Map<String, dynamic> dbCreate({
     required String createdAt, 

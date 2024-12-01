@@ -6,8 +6,8 @@ part of 'project_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-CreateProjectModel _$CreateProjectModelFromJson(Map<String, dynamic> json) =>
-    CreateProjectModel(
+ProjectRequest _$ProjectRequestFromJson(Map<String, dynamic> json) =>
+    ProjectRequest(
       name: json['name'] as String,
       description: json['description'] as String? ?? '',
       teamMembers: (json['teamMembers'] as List<dynamic>)
@@ -15,7 +15,7 @@ CreateProjectModel _$CreateProjectModelFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$CreateProjectModelToJson(CreateProjectModel instance) =>
+Map<String, dynamic> _$ProjectRequestToJson(ProjectRequest instance) =>
     <String, dynamic>{
       'name': instance.name,
       'description': instance.description,

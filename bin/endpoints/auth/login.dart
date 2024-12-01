@@ -8,11 +8,12 @@ import '../../models/result_models.dart';
 import '../../models/login_model.dart';
 import '../../models/user_db_model.dart';
 import '../../mongo_connection.dart';
-import '../../utils/constants.dart';
 import '../../utils/environment.dart';
-import '../../utils/handler_interface.dart';
+import '../handler_interface.dart';
 import '../../utils/jwt_provider.dart';
 import '../../utils/permission_level.dart';
+import '../../validators/auth/login_validator.dart';
+import '../../validators/validator_interface.dart';
 
 class Login {
   static IPostHandler call(){
@@ -34,7 +35,7 @@ class LoginMongo implements IPostHandler{
   Future<Response> rootHandler(Request req, MongoConnection connection) async{
     try{
       final credentials = LoginModel.fromJson(json.decode(await req.readAsString()));
-      final validation = validate(credentials);
+      final validation = validator.validate(credentials);
       if(validation.$1){
         final userRaw = await connection.users.findOne(where.eq('email', credentials.email));
         if (userRaw == null) {
@@ -58,26 +59,12 @@ class LoginMongo implements IPostHandler{
   Handler handler({required MongoConnection connection}) {
     return (Request req) => rootHandler(req, connection);
   }
-
-  @override
-  (bool, ErrorMessage?) validate(data) {
-    if (data is LoginModel){
-      RegExp regex = RegExp(Constants.emailRegEx);
-      Map<String, dynamic> messageMap = {};
-      if(data.email.isEmpty || !regex.hasMatch(data.email)){
-        messageMap["email"] = "Can not be empty or has non E-mail stucture";
-      }
-      if(data.password.isEmpty){
-        messageMap["password"]="Can not be empty";
-      }
-      return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(result: messageMap.toString(), statusCode: 400));
-    }else{
-      return (false, ErrorMessage(result: "Bad request", statusCode: 400));
-    }
-  }
   
   @override
   PermissionLevel get permissionLevel => PermissionLevel.unknown;
+  
+  @override
+  IValidator validator = LoginValidator();
 
 }
 
@@ -91,13 +78,10 @@ class LoginProstgre implements IPostHandler{
   Handler handler({required MongoConnection connection}) {
     throw UnimplementedError();
   }
-  
-  @override
-  (bool, ErrorMessage?) validate(data) {
-    // TODO: implement validate
-    throw UnimplementedError();
-  }
 
   @override
   PermissionLevel get permissionLevel => PermissionLevel.unknown;
+  
+  @override
+  IValidator validator = LoginValidator();
 }

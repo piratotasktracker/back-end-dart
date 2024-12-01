@@ -6,7 +6,9 @@ import '../../models/result_models.dart';
 import '../../models/project_model.dart';
 import '../../mongo_connection.dart';
 import '../../utils/environment.dart';
-import '../../utils/handler_interface.dart';
+import '../../validators/projects/project_validator.dart';
+import '../../validators/validator_interface.dart';
+import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
 class CreateProject {
@@ -33,8 +35,8 @@ class CreateProjectMongo implements IPostHandler{
       if(userPermission.value < permissionLevel.value || userId == null){
         return Response.forbidden(json.encode(ErrorMessage(result: 'Permission denied', statusCode: 403).toJson()));
       }
-      final credentials = CreateProjectModel.fromJson(json.decode(await req.readAsString()));
-      final validation = validate(credentials);
+      final credentials = ProjectRequest.fromJson(json.decode(await req.readAsString()));
+      final validation = validator.validate(credentials);
       if(validation.$1){
         String now = DateTime.now().toIso8601String();
         await connection.projects.insertOne(
@@ -55,20 +57,11 @@ class CreateProjectMongo implements IPostHandler{
   }
 
   @override
-  (bool, ErrorMessage?) validate(data) {
-    if (data is CreateProjectModel){
-      Map<String, dynamic> messageMap = {};
-      if(data.name.isEmpty){
-        messageMap["name"] = "Can not be empty";
-      }
-      return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(result: messageMap.toString(), statusCode: 400));
-    }else{
-      return (false, ErrorMessage(result: "Bad request", statusCode: 400));
-    }
-  }
+  PermissionLevel get permissionLevel => PermissionLevel.administrator;
 
   @override
-  PermissionLevel get permissionLevel => PermissionLevel.administrator;
+  IValidator validator = ProjectValidator();
+  
 }
 
 class CreateProjectProstgre implements IPostHandler{
@@ -81,12 +74,11 @@ class CreateProjectProstgre implements IPostHandler{
   Handler handler({required MongoConnection connection}) {
     throw UnimplementedError();
   }
-  
-  @override
-  (bool, ErrorMessage?) validate(data) {
-    throw UnimplementedError();
-  }
 
   @override
   PermissionLevel get permissionLevel => PermissionLevel.administrator;
+
+  @override
+  IValidator validator = ProjectValidator();
+
 }
