@@ -1,31 +1,17 @@
 import 'dart:convert';
 
-import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+import '../../data/repository_interface.dart';
+import '../../data/tasks/delete_task_repository.dart';
 import '../../models/result_models.dart';
 import '../../db_connection.dart';
-import '../../utils/environment.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class DeleteTask {
-  static IHandler call(){
-    final String dbType = Environment.getDBType();
-    switch (dbType){
-      case "MONGODB":{
-        return DeleteTaskMongo();
-      }
-      case "POSTGRESQL":{
-        return DeleteTaskProstgre();
-      }
-      default: throw UnimplementedError();
-    }
-  }
-}
+class DeleteTask implements IHandler{
 
-class DeleteTaskMongo implements IHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
@@ -38,8 +24,12 @@ class DeleteTaskMongo implements IHandler{
       if (id == null) {
         return Response.badRequest(body: json.encode(ErrorMessage(result: 'Id is missing', statusCode: 400).toJson()));
       }
-      await connection.tasks.deleteOne(where.eq('_id', ObjectId.fromHexString(id)));
-      return Response.ok(json.encode(SuccessMessage(result: 'Task deleted successfully', statusCode: 200).toJson()));
+      final result = await repository.interact(connection: connection, credentials: id, params: req);
+      if(result.$1){
+        return Response.ok(json.encode(SuccessMessage(result: result.$2, statusCode: 200).toJson()));
+      }else{
+        return Response(400, body: json.encode(ErrorMessage(result: result.$2, statusCode: 400).toJson()));
+      }
     }catch(e){
       return Response.internalServerError(body: json.encode(ErrorMessage(result: 'Error deleting project: $e', statusCode: 500).toJson()));
     }
@@ -52,19 +42,8 @@ class DeleteTaskMongo implements IHandler{
 
   @override
   PermissionLevel get permissionLevel => PermissionLevel.manager;
-}
-
-class DeleteTaskProstgre implements IHandler{
-  @override
-  Future<Response> rootHandler(Request req, DBConnection connection) async{
-    throw UnimplementedError();
-  }
 
   @override
-  Handler handler({required DBConnection connection}) {
-    throw UnimplementedError();
-  }
+  IRepository<DBConnection, String> get repository => DeleteTaskRepository();
 
-  @override
-  PermissionLevel get permissionLevel => PermissionLevel.manager;
 }

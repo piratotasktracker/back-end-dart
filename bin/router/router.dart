@@ -44,45 +44,45 @@ class AppRouter{
 
     //<protected>
 
-    router.get(AppRoutes.checkAlive, CheckIfAlive.handler(connection: connection));
-
     //user management
     router.get(AppRoutes.users, Pipeline().addMiddleware(checkAuthorization()) 
-      .addHandler(GetUsers.call().handler(connection: connection)));
+      .addHandler(GetUsers().handler(connection: connection)));
     router.get(AppRoutes.user, Pipeline().addMiddleware(checkAuthorization()) 
-      .addHandler(GetUser.call().handler(connection: connection)));
+      .addHandler(GetUser().handler(connection: connection)));
     router.get(AppRoutes.me, Pipeline().addMiddleware(checkAuthorization()) 
-      .addHandler(GetMe.call().handler(connection: connection)));
+      .addHandler(GetMe().handler(connection: connection)));
 
     //project management
     router.post(AppRoutes.projects, Pipeline().addMiddleware(checkAuthorization())
       .addHandler(CreateProject().handler(connection: connection)));
     router.get(AppRoutes.projects, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(GetProjects.call().handler(connection: connection)));
+      .addHandler(GetProjects().handler(connection: connection)));
     router.get(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
       .addHandler(GetProject().handler(connection: connection)));
     router.put(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(UpdateProject.call().handler(connection: connection)));
+      .addHandler(UpdateProject().handler(connection: connection)));
     router.delete(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
       .addHandler(DeleteProject().handler(connection: connection)));
 
     //task management
     router.post(AppRoutes.tasks, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(CreateTask.call().handler(connection: connection)));
+      .addHandler(CreateTask().handler(connection: connection)));
     router.get(AppRoutes.tasks, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(GetTasks.call().handler(connection: connection)));
+      .addHandler(GetTasks().handler(connection: connection)));
     router.get(AppRoutes.task, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(GetTask.call().handler(connection: connection)));
+      .addHandler(GetTask().handler(connection: connection)));
     router.get(AppRoutes.taskByProjectId, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(GetTasksByProjectId.call().handler(connection: connection)));
+      .addHandler(GetTasksByProjectId().handler(connection: connection)));
     router.put(AppRoutes.task, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(UpdateTask.call().handler(connection: connection)));
+      .addHandler(UpdateTask().handler(connection: connection)));
     router.delete(AppRoutes.task, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(DeleteTask.call().handler(connection: connection)));
+      .addHandler(DeleteTask().handler(connection: connection)));
 
     //</protected>
     
     //<public>
+
+    router.get(AppRoutes.checkAlive, CheckIfAlive.handler(connection: connection));
 
     router.post(AppRoutes.login, Login().handler(connection: connection));
     router.post(AppRoutes.signUp, SignUp().handler(connection: connection));

@@ -19,7 +19,7 @@ class Login implements IPostHandler{
       final credentials = LoginModel.fromJson(json.decode(await req.readAsString()));
       final validation = validator.validate(credentials);
       if(validation.$1){
-        final result = await repository.interact(connection: connection, credentials: credentials);
+        final result = await repository.interact(connection: connection, credentials: credentials, params: req);
         if(result.$1){
           return Response.ok(json.encode({'token': result.$2}));
         }else {

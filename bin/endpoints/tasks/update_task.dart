@@ -1,34 +1,19 @@
 import 'dart:convert';
 
-import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+import '../../data/repository_interface.dart';
+import '../../data/tasks/update_task_repository.dart';
 import '../../models/result_models.dart';
 import '../../models/task_model.dart';
 import '../../db_connection.dart';
-import '../../utils/environment.dart';
 import '../../validators/trasks/task_validator.dart';
 import '../../validators/validator_interface.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class UpdateTask {
-  static IPostHandler call(){
-    final String dbType = Environment.getDBType();
-    switch (dbType){
-      case "MONGODB":{
-        return UpdateTaskMongo();
-      }
-      case "POSTGRESQL":{
-        return UpdateTaskProstgre();
-      }
-      default: throw UnimplementedError();
-    }
-  }
-}
-
-class UpdateTaskMongo implements IPostHandler{
+class UpdateTask implements IPostHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
@@ -44,16 +29,12 @@ class UpdateTaskMongo implements IPostHandler{
       final credentials = TaskRequest.fromJson(json.decode(await req.readAsString()));
       final validation = validator.validate(credentials);
       if(validation.$1){
-        final String now = DateTime.now().toIso8601String();
-        var modifier = modify;
-        credentials.dbUpdate(updatedAt: now).forEach((key, value) {
-          modifier = modifier.set(key, value);
-        });
-        await connection.tasks.updateOne(
-          where.eq('_id', ObjectId.fromHexString(id)),
-          modifier,
-        );
-        return Response.ok(json.encode(SuccessMessage(result: 'Task ${credentials.name} updated successfully', statusCode: 200).toJson()));
+        final result = await repository.interact(connection: connection, credentials: credentials, params: req);
+        if(result.$1){
+          return Response.ok(result.$2);
+        }else {
+          return Response(400, body: json.encode(ErrorMessage(result: result.$2, statusCode: 400).toJson()));
+        }
       }else{
         return Response(validation.$2 != null ? validation.$2!.statusCode : 400, body: validation.$2?.toJson().toString());
       }
@@ -73,23 +54,7 @@ class UpdateTaskMongo implements IPostHandler{
   @override
   IValidator validator = TaskValidator();
 
-}
-
-class UpdateTaskProstgre implements IPostHandler{
   @override
-  Future<Response> rootHandler(Request req, DBConnection connection) async{
-    throw UnimplementedError();
-  }
-
-  @override
-  Handler handler({required DBConnection connection}) {
-    throw UnimplementedError();
-  }
-
-  @override
-  PermissionLevel get permissionLevel => PermissionLevel.executor;
-
-  @override
-  IValidator validator = TaskValidator();
+  IRepository<DBConnection, TaskRequest> get repository => UpdateTaskRepository();
 
 }

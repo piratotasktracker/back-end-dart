@@ -7,7 +7,7 @@ import '../../db_connection.dart';
 import '../../models/result_models.dart';
 import '../repository_interface.dart';
 
-class DeleteProjectRepository extends IRepository<DBConnection, String>{
+class DeleteTaskRepository extends IRepository<DBConnection, String>{
   
   @override
   Future<(bool, String)> interactMongo({
@@ -15,11 +15,11 @@ class DeleteProjectRepository extends IRepository<DBConnection, String>{
     required String credentials, 
     Request? params,
   }) async{
-    final result = await connection.projects.deleteOne(where.eq('_id', ObjectId.fromHexString(credentials)));
+    final result = await connection.tasks.deleteOne(where.eq('_id', ObjectId.fromHexString(credentials)));
     if(result.isSuccess){
-      return (true, json.encode(SuccessMessage(result: 'Project deleted successfully', statusCode: 200).toJson()));
+      return (true, json.encode(SuccessMessage(result: 'Task deleted successfully', statusCode: 200).toJson()));
     }else{
-      return (false, 'Error deleting project');  
+      return (false, 'Error deleting task');  
     }
   }
   

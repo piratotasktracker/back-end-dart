@@ -23,7 +23,7 @@ class DeleteProject implements IHandler{
       if (id == null) {
         return Response.badRequest(body: json.encode(ErrorMessage(result: 'Id is missing', statusCode: 400).toJson()));
       }
-      final result = await repository.interact(connection: connection, credentials: id);
+      final result = await repository.interact(connection: connection, credentials: id, params: req);
       if(result.$1){
         return Response.ok(json.encode(SuccessMessage(result: result.$2, statusCode: 200).toJson()));
       }else{

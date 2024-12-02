@@ -23,7 +23,7 @@ class GetProject implements IHandler{
       if (id == null) {
         return Response.badRequest(body: json.encode(ErrorMessage(result: 'Id is missing', statusCode: 400).toJson()));
       }
-      final result = await repository.interact(connection: connection, credentials: null, params: req.context..addAll(req.params));
+      final result = await repository.interact(connection: connection, credentials: null, params: req);
       if(result.$1){
         return Response.ok(result.$2);
       }else{

@@ -4,10 +4,10 @@ import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 
 import '../../db_connection.dart';
-import '../../models/result_models.dart';
+import '../../models/user_db_model.dart';
 import '../repository_interface.dart';
 
-class DeleteProjectRepository extends IRepository<DBConnection, String>{
+class GetUserRepository extends IRepository<DBConnection, String>{
   
   @override
   Future<(bool, String)> interactMongo({
@@ -15,12 +15,12 @@ class DeleteProjectRepository extends IRepository<DBConnection, String>{
     required String credentials, 
     Request? params,
   }) async{
-    final result = await connection.projects.deleteOne(where.eq('_id', ObjectId.fromHexString(credentials)));
-    if(result.isSuccess){
-      return (true, json.encode(SuccessMessage(result: 'Project deleted successfully', statusCode: 200).toJson()));
-    }else{
-      return (false, 'Error deleting project');  
+    final userRaw = await connection.users.findOne(where.eq('_id', ObjectId.fromHexString(credentials)));
+    if (userRaw == null) {
+      return (false, 'User not found');
     }
+    final user = UserDBModel.fromJson(userRaw);
+    return (true, json.encode(user.toUserResponse().toJson()));
   }
   
   @override

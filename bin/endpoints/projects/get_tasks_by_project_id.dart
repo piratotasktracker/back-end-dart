@@ -1,32 +1,16 @@
 import 'dart:convert';
 
-import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+import '../../data/projects/get_tasks_by_project_id_repository.dart';
+import '../../data/repository_interface.dart';
 import '../../models/result_models.dart';
-import '../../models/task_model.dart';
 import '../../db_connection.dart';
-import '../../utils/environment.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class GetTasksByProjectId {
-  static IHandler call(){
-    final String dbType = Environment.getDBType();
-    switch (dbType){
-      case "MONGODB":{
-        return GetTasksByProjectIdMongo();
-      }
-      case "POSTGRESQL":{
-        return GetTasksByProjectIdProstgre();
-      }
-      default: throw UnimplementedError();
-    }
-  }
-}
-
-class GetTasksByProjectIdMongo implements IHandler{
+class GetTasksByProjectId implements IHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
@@ -39,14 +23,12 @@ class GetTasksByProjectIdMongo implements IHandler{
       if (id == null) {
         return Response.badRequest(body: json.encode(ErrorMessage(result: 'Id is missing', statusCode: 400).toJson()));
       }
-      final List<Map<String, dynamic>> tasksRaw;
-      if(userPermission.value > 2){
-        tasksRaw = await connection.tasks.find(where.eq("projectId", id)).toList();
+      final result = await repository.interact(connection: connection, credentials: id, params: req);
+      if(result.$1){
+        return Response.ok(result.$2);
       }else{
-        tasksRaw = await connection.tasks.find(where.eq("projectId", id).eq("teamMembers", userId)).toList();
+        return Response(400, body: json.encode(ErrorMessage(result: result.$2, statusCode: 404).toJson()));
       }
-      final projects = tasksRaw.map((user) => TaskDBModel.fromJson(user)).toList();
-      return Response.ok(json.encode(projects.map((user) => user.toTaskResponse([]).toJson()).toList()));
     }catch(e){
       return Response.internalServerError(body: json.encode(ErrorMessage(result: 'Error fetching projects: $e', statusCode: 500).toJson()));
     }
@@ -59,19 +41,7 @@ class GetTasksByProjectIdMongo implements IHandler{
 
   @override
   PermissionLevel get permissionLevel => PermissionLevel.executor;
-}
-
-class GetTasksByProjectIdProstgre implements IHandler{
-  @override
-  Future<Response> rootHandler(Request req, DBConnection connection) async{
-    throw UnimplementedError();
-  }
 
   @override
-  Handler handler({required DBConnection connection}) {
-    throw UnimplementedError();
-  }
-
-  @override
-  PermissionLevel get permissionLevel => PermissionLevel.executor;
+  IRepository<DBConnection, String> get repository => GetTasksByProjectIdRepository();
 }

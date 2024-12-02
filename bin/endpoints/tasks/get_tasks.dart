@@ -2,29 +2,14 @@ import 'dart:convert';
 
 import 'package:shelf/shelf.dart';
 
+import '../../data/repository_interface.dart';
+import '../../data/tasks/get_tasks_repository.dart';
 import '../../models/result_models.dart';
-import '../../models/task_model.dart';
 import '../../db_connection.dart';
-import '../../utils/environment.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class GetTasks {
-  static IHandler call(){
-    final String dbType = Environment.getDBType();
-    switch (dbType){
-      case "MONGODB":{
-        return GetTasksMongo();
-      }
-      case "POSTGRESQL":{
-        return GetTasksProstgre();
-      }
-      default: throw UnimplementedError();
-    }
-  }
-}
-
-class GetTasksMongo implements IHandler{
+class GetTasks implements IHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
@@ -33,9 +18,12 @@ class GetTasksMongo implements IHandler{
       if(userPermission.value < permissionLevel.value || userId == null){
         return Response.forbidden(json.encode(ErrorMessage(result: 'Permission denied', statusCode: 403).toJson()));
       }
-      final projectsRaw = await connection.tasks.find().toList();
-      final users = projectsRaw.map((user) => TaskDBModel.fromJson(user)).toList();
-      return Response.ok(json.encode(users.map((user) => user.toTaskResponse([]).toJson()).toList()));
+      final result = await repository.interact(connection: connection, credentials: null, params: req);
+      if(result.$1){
+        return Response.ok(result.$2);
+      }else{
+        return Response(400, body: json.encode(ErrorMessage(result: result.$2, statusCode: 404).toJson()));
+      }
     }catch(e){
       return Response.internalServerError(body: json.encode(ErrorMessage(result: 'Error fetching projects: $e', statusCode: 500).toJson()));
     }
@@ -48,19 +36,8 @@ class GetTasksMongo implements IHandler{
 
   @override
   PermissionLevel get permissionLevel => PermissionLevel.executor;
-}
-
-class GetTasksProstgre implements IHandler{
-  @override
-  Future<Response> rootHandler(Request req, DBConnection connection) async{
-    throw UnimplementedError();
-  }
 
   @override
-  Handler handler({required DBConnection connection}) {
-    throw UnimplementedError();
-  }
+  IRepository<DBConnection, void> get repository => GetTasksRepository();
 
-  @override
-  PermissionLevel get permissionLevel => PermissionLevel.executor;
 }

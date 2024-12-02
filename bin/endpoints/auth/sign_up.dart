@@ -19,7 +19,7 @@ class SignUp implements IPostHandler{
       final signUpRequest = SignUpModel.fromJson(json.decode(await req.readAsString()));
       final validation = validator.validate(signUpRequest);
       if(validation.$1){
-        final result = await repository.interact(connection: connection, credentials: signUpRequest);
+        final result = await repository.interact(connection: connection, credentials: signUpRequest, params: req);
         if(result.$1){
           return Response.ok(result.$2);
         }else {

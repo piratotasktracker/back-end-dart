@@ -41,6 +41,8 @@ components:
           type: string
         description:
           type: string
+        teamMembers: 
+          type: list
     DBTaskModel:
       type: object
       properties:
@@ -64,7 +66,7 @@ components:
         avatar:
           type: string
           nullable: true
-        fullName:
+        full_name:
           type: string
         password:
           type: string
@@ -80,7 +82,7 @@ components:
         avatar:
           type: string
           nullable: true
-        fullName:
+        full_name:
           type: string
         role:
           type: integer

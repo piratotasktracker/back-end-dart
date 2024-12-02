@@ -12,7 +12,7 @@ class SignUpValidator extends IValidator<SignUpModel>{
     if(data.email.isEmpty || !regex.hasMatch(data.email)){
       messageMap["email"] = "Can not be empty or has non E-mail stucture";
     }
-    if(data.fullName == null || data.fullName!.isEmpty){
+    if(data.full_name == null || data.full_name!.isEmpty){
       messageMap["full_name"] = "Can not be empty";
     }
     if(data.password.isEmpty){

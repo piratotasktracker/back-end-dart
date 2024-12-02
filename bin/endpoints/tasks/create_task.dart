@@ -2,31 +2,18 @@ import 'dart:convert';
 
 import 'package:shelf/shelf.dart';
 
+import '../../data/repository_interface.dart';
+import '../../data/tasks/create_task_repository.dart';
 import '../../models/result_models.dart';
 import '../../models/task_model.dart';
 import '../../db_connection.dart';
-import '../../utils/environment.dart';
 import '../../validators/trasks/task_validator.dart';
 import '../../validators/validator_interface.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class CreateTask {
-  static IPostHandler call(){
-    final String dbType = Environment.getDBType();
-    switch (dbType){
-      case "MONGODB":{
-        return CreateTaskMongo();
-      }
-      case "POSTGRESQL":{
-        return CreateTaskProstgre();
-      }
-      default: throw UnimplementedError();
-    }
-  }
-}
+class CreateTask implements IPostHandler{
 
-class CreateTaskMongo implements IPostHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
@@ -38,11 +25,12 @@ class CreateTaskMongo implements IPostHandler{
       final credentials = TaskRequest.fromJson(json.decode(await req.readAsString()));
       final validation = validator.validate(credentials);
       if(validation.$1){
-        String now = DateTime.now().toIso8601String();
-        await connection.tasks.insertOne(
-          credentials.dbCreate(createdAt: now, updatedAt: now)
-        );
-        return Response.ok(json.encode(SuccessMessage(result: 'Task ${credentials.name} created successfully', statusCode: 200).toJson()));
+        final result = await repository.interact(connection: connection, credentials: credentials, params: req);
+        if(result.$1){
+        return Response.ok(result.$2);
+      }else {
+        return Response(400, body: json.encode(ErrorMessage(result: result.$2, statusCode: 400).toJson()));
+      }
       }else{
         return Response(validation.$2 != null ? validation.$2!.statusCode : 400, body: validation.$2?.toJson().toString());
       }
@@ -62,23 +50,7 @@ class CreateTaskMongo implements IPostHandler{
   @override
   IValidator validator = TaskValidator();
 
-}
-
-class CreateTaskProstgre implements IPostHandler{
   @override
-  Future<Response> rootHandler(Request req, DBConnection connection) async{
-    throw UnimplementedError();
-  }
-
-  @override
-  Handler handler({required DBConnection connection}) {
-    throw UnimplementedError();
-  }
-
-  @override
-  PermissionLevel get permissionLevel => PermissionLevel.manager;
-
-  @override
-  IValidator validator = TaskValidator();
+  IRepository<DBConnection, TaskRequest> get repository => CreateTaskRepository();
 
 }

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
-import 'package:shelf_router/shelf_router.dart';
 
 import '../../db_connection.dart';
 import '../../models/project_model.dart';
@@ -10,7 +9,7 @@ import '../../models/user_db_model.dart';
 import '../../utils/permission_level.dart';
 import '../repository_interface.dart';
 
-class GetProjectRepository extends IRepository<DBConnection, void>{
+class GetProjectsRepository extends IRepository<DBConnection, void>{
   
   @override
   Future<(bool, String)> interactMongo({
@@ -18,24 +17,25 @@ class GetProjectRepository extends IRepository<DBConnection, void>{
     required void credentials, 
     Request? params,
   }) async{
+    print(params.runtimeType);
     if(params != null){
-      final id = params.params['id'];
       final PermissionLevel userPermission = PermissionLevel.fromInt(params.context["permissionLevel"] as int? ?? 0);
       final String? userId = params.context["userId"] as String?;
-      final Map<String, dynamic>? projectRaw;
+      final List<Map<String, dynamic>> projectsRaw;
       if(userPermission.value > 2){
-        projectRaw = await connection.projects.findOne(where.eq('_id', ObjectId.fromHexString(id??'')));
+        projectsRaw = await connection.projects.find().toList();
       }else{
-        projectRaw = await connection.projects.findOne(where.eq('_id', ObjectId.fromHexString(id??'')).eq('teamMembers', userId)); 
+        projectsRaw = await connection.projects.find(where.eq("teamMembers", userId)).toList();
       }
-      if (projectRaw == null) {
-        return (false, 'Project not found');
+      final projects = projectsRaw.map((project) => ProjectDBModel.fromJson(project)).toList();
+      final List<ProjectResponse> result = [];
+      for(var item in projects){
+        final teamMembersRaw = await connection.users.find(where.oneFrom('_id', item.teamMembers.map((e) => ObjectId.fromHexString(e)).toList())).toList();
+        result.add(item.toProjectResponse(teamMembersRaw.map((user) => UserDBModel.fromJson(user).toUserResponse()).toList()));
       }
-      final ProjectDBModel project = ProjectDBModel.fromJson(projectRaw);
-      final teamMembersRaw = await connection.users.find(where.oneFrom('_id', project.teamMembers.map((e) => ObjectId.fromHexString(e)).toList())).toList();
-      return (true, json.encode(project.toProjectResponse(teamMembersRaw.map((user) => UserDBModel.fromJson(user).toUserResponse()).toList()).toJson()));
+      return (true, json.encode(result));
     }else{
-      return (false, 'Project not found');
+      return (false, 'Something went wrong');
     }
   }
   

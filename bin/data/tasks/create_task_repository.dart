@@ -2,34 +2,34 @@ import 'dart:convert';
 
 import 'package:shelf/shelf.dart';
 
-import '../../models/project_model.dart';
 import '../../db_connection.dart';
 import '../../models/result_models.dart';
+import '../../models/task_model.dart';
 import '../repository_interface.dart';
 
-class CreateProjectRepository extends IRepository<DBConnection, ProjectRequest>{
+class CreateTaskRepository extends IRepository<DBConnection, TaskRequest>{
   
   @override
   Future<(bool, String)> interactMongo({
     required MongoConnection connection, 
-    required ProjectRequest credentials, 
+    required TaskRequest credentials, 
     Request? params,
   }) async{
     String now = DateTime.now().toIso8601String();
-    final result = await connection.projects.insertOne(
+    final result = await connection.tasks.insertOne(
       credentials.dbCreate(createdAt: now, updatedAt: now)
     );
     if(result.isSuccess){
-      return (true, json.encode(SuccessMessage(result: 'Project ${credentials.name} created successfully', statusCode: 200)));
+      return (true, json.encode(SuccessMessage(result: 'Task ${credentials.name} created successfully', statusCode: 200)));
     }else{
-      return (false, 'Error creating project');  
+      return (false, 'Error creating task');  
     }
   }
   
   @override
   Future<(bool, String)> interactPostgre({
     required PostgreConnection connection, 
-    required ProjectRequest credentials, 
+    required TaskRequest credentials, 
     Request? params,
   }) {
     throw UnimplementedError();

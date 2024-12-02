@@ -1,5 +1,6 @@
 import 'package:bcrypt/bcrypt.dart';
 import 'package:mongo_dart/mongo_dart.dart';
+import 'package:shelf/shelf.dart';
 
 import '../../models/login_model.dart';
 import '../../models/user_db_model.dart';
@@ -13,7 +14,7 @@ class LoginRepository extends IRepository<DBConnection, LoginModel>{
   Future<(bool, String)> interactMongo({
     required MongoConnection connection, 
     required LoginModel credentials, 
-    Map<String, dynamic>? params,
+    Request? params,
   }) async{
     final userRaw = await connection.users.findOne(where.eq('email', credentials.email));
     if (userRaw == null) {
@@ -30,7 +31,7 @@ class LoginRepository extends IRepository<DBConnection, LoginModel>{
   Future<(bool, String)> interactPostgre({
     required PostgreConnection connection, 
     required LoginModel credentials, 
-    Map<String, dynamic>? params,
+    Request? params,
   }) {
     throw UnimplementedError();
   }

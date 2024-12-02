@@ -24,9 +24,9 @@ class CreateProject implements IPostHandler{
       final credentials = ProjectRequest.fromJson(json.decode(await req.readAsString()));
       final validation = validator.validate(credentials);
       if(validation.$1){
-        final result = await repository.interact(connection: connection, credentials: credentials);
+        final result = await repository.interact(connection: connection, credentials: credentials, params: req);
         if(result.$1){
-          return Response.ok(json.encode(SuccessMessage(result: result.$2, statusCode: 200).toJson()));
+          return Response.ok(result.$2);
         }else {
           return Response(400, body: json.encode(ErrorMessage(result: result.$2, statusCode: 400).toJson()));
         }
@@ -50,6 +50,6 @@ class CreateProject implements IPostHandler{
   IValidator validator = ProjectValidator();
 
   @override
-  IRepository<DBConnection, ProjectRequest> get repository => throw CreateProjectRepository();
+  IRepository<DBConnection, ProjectRequest> get repository => CreateProjectRepository();
   
 }

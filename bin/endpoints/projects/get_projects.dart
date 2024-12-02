@@ -1,32 +1,15 @@
 import 'dart:convert';
 
-import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 
-import '../../models/project_model.dart';
+import '../../data/projects/get_projects_repository.dart';
+import '../../data/repository_interface.dart';
 import '../../models/result_models.dart';
-import '../../models/user_db_model.dart';
 import '../../db_connection.dart';
-import '../../utils/environment.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class GetProjects {
-  static IHandler call(){
-    final String dbType = Environment.getDBType();
-    switch (dbType){
-      case "MONGODB":{
-        return GetProjectsMongo();
-      }
-      case "POSTGRESQL":{
-        return GetProjectsProstgre();
-      }
-      default: throw UnimplementedError();
-    }
-  }
-}
-
-class GetProjectsMongo implements IHandler{
+class GetProjects implements IHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
@@ -35,19 +18,12 @@ class GetProjectsMongo implements IHandler{
       if(userPermission.value < permissionLevel.value || userId == null){
         return Response.forbidden(json.encode(ErrorMessage(result: 'Permission denied', statusCode: 403).toJson()));
       }
-      final List<Map<String, dynamic>> projectsRaw;
-      if(userPermission.value > 2){
-        projectsRaw = await connection.projects.find().toList();
+      final result = await repository.interact(connection: connection, credentials: null, params: req);
+      if(result.$1){
+        return Response.ok(result.$2);
       }else{
-        projectsRaw = await connection.projects.find(where.eq("teamMembers", userId)).toList();
+        return Response(400, body: json.encode(ErrorMessage(result: result.$2, statusCode: 400).toJson()));
       }
-      final projects = projectsRaw.map((project) => ProjectDBModel.fromJson(project)).toList();
-      final List<ProjectResponse> result = [];
-      for(var item in projects){
-        final teamMembersRaw = await connection.users.find(where.oneFrom('_id', item.teamMembers.map((e) => ObjectId.fromHexString(e)).toList())).toList();
-        result.add(item.toProjectResponse(teamMembersRaw.map((user) => UserDBModel.fromJson(user).toUserResponse()).toList()));
-      }
-      return Response.ok(json.encode(result));
     }catch(e){
       return Response.internalServerError(body: json.encode(ErrorMessage(result: 'Error fetching projects: $e', statusCode: 500).toJson()));
     }
@@ -60,19 +36,8 @@ class GetProjectsMongo implements IHandler{
 
   @override
   PermissionLevel get permissionLevel => PermissionLevel.executor;
-}
-
-class GetProjectsProstgre implements IHandler{
-  @override
-  Future<Response> rootHandler(Request req, DBConnection connection) async{
-    throw UnimplementedError();
-  }
 
   @override
-  Handler handler({required DBConnection connection}) {
-    throw UnimplementedError();
-  }
+  IRepository<DBConnection, void> get repository => GetProjectsRepository();
 
-  @override
-  PermissionLevel get permissionLevel => PermissionLevel.executor;
 }
