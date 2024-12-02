@@ -23,7 +23,7 @@ import '../db_connection.dart';
 class CheckIfAlive{
 
   static Response _rootHandler(Request req, DBConnection connection) {
-    return Response.ok('Sevice alive');
+    return Response.ok('Service alive');
   }
 
   static Handler handler({required DBConnection connection}) {
