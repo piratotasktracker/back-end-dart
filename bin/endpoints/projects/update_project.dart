@@ -8,10 +8,13 @@ import '../../models/project_model.dart';
 import '../../models/result_models.dart';
 import '../../mongo_connection.dart';
 import '../../utils/environment.dart';
-import '../../utils/handler_interface.dart';
+import '../../validators/projects/project_validator.dart';
+import '../../validators/validator_interface.dart';
+import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
 class UpdateProject {
+
   static IPostHandler call(){
     final String dbType = Environment.getDBType();
     switch (dbType){
@@ -24,9 +27,11 @@ class UpdateProject {
       default: throw UnimplementedError();
     }
   }
+
 }
 
 class UpdateProjectMongo implements IPostHandler{
+
   @override
   Future<Response> rootHandler(Request req, MongoConnection connection) async{
     try{
@@ -39,8 +44,8 @@ class UpdateProjectMongo implements IPostHandler{
       if (id == null) {
         return Response.badRequest(body: json.encode(ErrorMessage(result: 'Id is missing', statusCode: 400).toJson()));
       }
-      final credentials = CreateProjectModel.fromJson(json.decode(await req.readAsString()));
-      final validation = validate(credentials);
+      final credentials = ProjectRequest.fromJson(json.decode(await req.readAsString()));
+      final validation = validator.validate(credentials);
       if(validation.$1){
         final String now = DateTime.now().toIso8601String();
         var modifier = modify;
@@ -66,23 +71,15 @@ class UpdateProjectMongo implements IPostHandler{
   }
 
   @override
-  (bool, ErrorMessage?) validate(data) {
-    if (data is CreateProjectModel){
-      Map<String, dynamic> messageMap = {};
-      if(data.name.isEmpty){
-        messageMap["email"] = "Can not be empty or has non E-mail stucture";
-      }
-      return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(result: messageMap.toString(), statusCode: 400));
-    }else{
-      return (false, ErrorMessage(result: "Bad request", statusCode: 400));
-    }
-  }
+  PermissionLevel get permissionLevel => PermissionLevel.administrator;
 
   @override
-  PermissionLevel get permissionLevel => PermissionLevel.administrator;
+  IValidator validator = ProjectValidator();
+
 }
 
 class UpdateProjectProstgre implements IPostHandler{
+
   @override
   Future<Response> rootHandler(Request req, MongoConnection connection) async{
     throw UnimplementedError();
@@ -92,13 +89,11 @@ class UpdateProjectProstgre implements IPostHandler{
   Handler handler({required MongoConnection connection}) {
     throw UnimplementedError();
   }
-  
-  @override
-  (bool, ErrorMessage?) validate(data) {
-    // TODO: implement validate
-    throw UnimplementedError();
-  }
 
   @override
   PermissionLevel get permissionLevel => PermissionLevel.administrator;
+  
+  @override
+  IValidator validator = ProjectValidator();
+
 }

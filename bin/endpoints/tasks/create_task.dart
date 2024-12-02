@@ -6,7 +6,9 @@ import '../../models/result_models.dart';
 import '../../models/task_model.dart';
 import '../../mongo_connection.dart';
 import '../../utils/environment.dart';
-import '../../utils/handler_interface.dart';
+import '../../validators/trasks/task_validator.dart';
+import '../../validators/validator_interface.dart';
+import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
 class CreateTask {
@@ -33,8 +35,8 @@ class CreateTaskMongo implements IPostHandler{
       if(userPermission.value < permissionLevel.value || userId == null){
         return Response.forbidden(json.encode(ErrorMessage(result: 'Permission denied', statusCode: 403).toJson()));
       }
-      final credentials = CreateTaskModel.fromJson(json.decode(await req.readAsString()));
-      final validation = validate(credentials);
+      final credentials = TaskRequest.fromJson(json.decode(await req.readAsString()));
+      final validation = validator.validate(credentials);
       if(validation.$1){
         String now = DateTime.now().toIso8601String();
         await connection.tasks.insertOne(
@@ -55,26 +57,11 @@ class CreateTaskMongo implements IPostHandler{
   }
 
   @override
-  (bool, ErrorMessage?) validate(data) {
-    if (data is CreateTaskModel){
-      Map<String, dynamic> messageMap = {};
-      if(data.name.isEmpty){
-        messageMap["email"] = "Can not be empty or has non E-mail stucture";
-      }
-      if(data.assigneeId.isEmpty){
-        messageMap["assigneId"] = "Can not be empty";
-      }
-      if(data.createdById.isEmpty){
-        messageMap["createdById"] = "Can not be empty";
-      }
-      return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(result: messageMap.toString(), statusCode: 400));
-    }else{
-      return (false, ErrorMessage(result: "Bad request", statusCode: 400));
-    }
-  }
-
-  @override
   PermissionLevel get permissionLevel => PermissionLevel.manager;
+  
+  @override
+  IValidator validator = TaskValidator();
+
 }
 
 class CreateTaskProstgre implements IPostHandler{
@@ -87,12 +74,11 @@ class CreateTaskProstgre implements IPostHandler{
   Handler handler({required MongoConnection connection}) {
     throw UnimplementedError();
   }
-  
-  @override
-  (bool, ErrorMessage?) validate(data) {
-    throw UnimplementedError();
-  }
 
   @override
   PermissionLevel get permissionLevel => PermissionLevel.manager;
+
+  @override
+  IValidator validator = TaskValidator();
+
 }

@@ -8,7 +8,9 @@ import '../../models/result_models.dart';
 import '../../models/task_model.dart';
 import '../../mongo_connection.dart';
 import '../../utils/environment.dart';
-import '../../utils/handler_interface.dart';
+import '../../validators/trasks/task_validator.dart';
+import '../../validators/validator_interface.dart';
+import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
 class UpdateTask {
@@ -39,8 +41,8 @@ class UpdateTaskMongo implements IPostHandler{
       if (id == null) {
         return Response.badRequest(body: json.encode(ErrorMessage(result: 'Id is missing', statusCode: 400).toJson()));
       }
-      final credentials = CreateTaskModel.fromJson(json.decode(await req.readAsString()));
-      final validation = validate(credentials);
+      final credentials = TaskRequest.fromJson(json.decode(await req.readAsString()));
+      final validation = validator.validate(credentials);
       if(validation.$1){
         final String now = DateTime.now().toIso8601String();
         var modifier = modify;
@@ -66,20 +68,11 @@ class UpdateTaskMongo implements IPostHandler{
   }
 
   @override
-  (bool, ErrorMessage?) validate(data) {
-    if (data is CreateTaskModel){
-      Map<String, dynamic> messageMap = {};
-      if(data.name.isEmpty){
-        messageMap["email"] = "Can not be empty or has non E-mail stucture";
-      }
-      return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(result: messageMap.toString(), statusCode: 400));
-    }else{
-      return (false, ErrorMessage(result: "Bad request", statusCode: 400));
-    }
-  }
+  PermissionLevel get permissionLevel => PermissionLevel.executor;
 
   @override
-  PermissionLevel get permissionLevel => PermissionLevel.executor;
+  IValidator validator = TaskValidator();
+
 }
 
 class UpdateTaskProstgre implements IPostHandler{
@@ -92,13 +85,11 @@ class UpdateTaskProstgre implements IPostHandler{
   Handler handler({required MongoConnection connection}) {
     throw UnimplementedError();
   }
-  
-  @override
-  (bool, ErrorMessage?) validate(data) {
-    // TODO: implement validate
-    throw UnimplementedError();
-  }
 
   @override
   PermissionLevel get permissionLevel => PermissionLevel.executor;
+
+  @override
+  IValidator validator = TaskValidator();
+
 }

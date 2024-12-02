@@ -36,9 +36,9 @@ abstract class IExtendedProjectModel extends IProjectModel{
 
 
 @JsonSerializable()
-class CreateProjectModel extends IProjectModel{
+class ProjectRequest extends IProjectModel{
 
-  const CreateProjectModel({
+  const ProjectRequest({
     required super.name,
     super.description,
     required this.teamMembers,
@@ -47,9 +47,9 @@ class CreateProjectModel extends IProjectModel{
   @JsonKey(name: "teamMembers")
   final List<String> teamMembers;
   
-  factory CreateProjectModel.fromJson(Map<String, dynamic> json) => _$CreateProjectModelFromJson(json);
+  factory ProjectRequest.fromJson(Map<String, dynamic> json) => _$ProjectRequestFromJson(json);
 
-  Map<String, dynamic> toJson() => _$CreateProjectModelToJson(this);
+  Map<String, dynamic> toJson() => _$ProjectRequestToJson(this);
 
   Map<String, dynamic> dbCreate({
     required String createdAt, 

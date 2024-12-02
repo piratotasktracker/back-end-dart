@@ -8,7 +8,7 @@ import '../../models/result_models.dart';
 import '../../models/user_db_model.dart';
 import '../../mongo_connection.dart';
 import '../../utils/environment.dart';
-import '../../utils/handler_interface.dart';
+import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
 class GetProjects {

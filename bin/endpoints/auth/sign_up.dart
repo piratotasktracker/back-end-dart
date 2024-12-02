@@ -6,9 +6,10 @@ import 'package:shelf/shelf.dart';
 import '../../models/result_models.dart';
 import '../../models/sign_up_model.dart';
 import '../../mongo_connection.dart';
-import '../../utils/constants.dart';
 import '../../utils/environment.dart';
-import '../../utils/handler_interface.dart';
+import '../../validators/auth/sign_in_validator.dart';
+import '../../validators/validator_interface.dart';
+import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
 class SignUp {
@@ -31,7 +32,7 @@ class SignUpMongo implements IPostHandler{
   Future<Response> rootHandler(Request req, MongoConnection connection) async{
     try{
       final signUpRequest = SignUpModel.fromJson(json.decode(await req.readAsString()));
-      final validation = validate(signUpRequest);
+      final validation = validator.validate(signUpRequest);
       if(validation.$1){
         final Map<String, dynamic>? signUpRequestRaw = await connection.users.findOne(where.eq('email', signUpRequest.email));
         if (signUpRequestRaw != null) {
@@ -60,33 +61,15 @@ class SignUpMongo implements IPostHandler{
   }
 
   @override
-  (bool, ErrorMessage?) validate(dynamic data) {
-    if (data is SignUpModel){
-      RegExp regex = RegExp(Constants.emailRegEx);
-      Map<String, dynamic> messageMap = {};
-      if(data.email.isEmpty || !regex.hasMatch(data.email)){
-        messageMap["email"] = "Can not be empty or has non E-mail stucture";
-      }
-      if(data.fullName == null || data.fullName!.isEmpty){
-        messageMap["full_name"] = "Can not be empty";
-      }
-      if(data.password.isEmpty){
-        messageMap["password"]="Can not be empty";
-      }
-      if(data.role == null || data.role! > 3){
-        messageMap["role"] = "Can not be empty on higher than 3";
-      }
-      return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(result: messageMap.toString(), statusCode: 400));
-    }else{
-      return (false, ErrorMessage(result: "Bad request", statusCode: 400));
-    }
-  }
+  PermissionLevel get permissionLevel => PermissionLevel.unknown;
 
   @override
-  PermissionLevel get permissionLevel => PermissionLevel.unknown;
+  IValidator validator = SignUpValidator();
+
 }
 
 class SignUpProstgre implements IPostHandler{
+
   @override
   Future<Response> rootHandler(Request req, MongoConnection connection) async{
     throw UnimplementedError();
@@ -96,13 +79,11 @@ class SignUpProstgre implements IPostHandler{
   Handler handler({required MongoConnection connection}) {
     throw UnimplementedError();
   }
-  
-  @override
-  (bool, ErrorMessage?) validate(data) {
-    // TODO: implement validate
-    throw UnimplementedError();
-  }
 
   @override
   PermissionLevel get permissionLevel => PermissionLevel.unknown;
+
+  @override
+  IValidator validator = SignUpValidator();
+
 }
