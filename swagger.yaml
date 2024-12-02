@@ -42,7 +42,7 @@ components:
         description:
           type: string
         teamMembers: 
-          type: list
+          type: array
     DBTaskModel:
       type: object
       properties:
