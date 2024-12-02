@@ -18,15 +18,15 @@ import '../endpoints/users/get_me.dart';
 import '../endpoints/users/get_user.dart';
 import '../endpoints/users/get_users.dart';
 import '../middlewares/check_authorization.dart';
-import '../mongo_connection.dart';
+import '../db_connection.dart';
 
 class CheckIfAlive{
 
-  static Response _rootHandler(Request req, MongoConnection connection) {
+  static Response _rootHandler(Request req, DBConnection connection) {
     return Response.ok('Sevice alive');
   }
 
-  static Handler handler({required MongoConnection connection}) {
+  static Handler handler({required DBConnection connection}) {
     return (Request req) => _rootHandler(req, connection);
   }
 }
@@ -36,7 +36,7 @@ class AppRouter{
   AppRouter({
     required this.connection
   });
-  final MongoConnection connection;
+  final DBConnection connection;
 
   final router = Router();
 
@@ -56,15 +56,15 @@ class AppRouter{
 
     //project management
     router.post(AppRoutes.projects, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(CreateProject.call().handler(connection: connection)));
+      .addHandler(CreateProject().handler(connection: connection)));
     router.get(AppRoutes.projects, Pipeline().addMiddleware(checkAuthorization())
       .addHandler(GetProjects.call().handler(connection: connection)));
     router.get(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(GetProject.call().handler(connection: connection)));
+      .addHandler(GetProject().handler(connection: connection)));
     router.put(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
       .addHandler(UpdateProject.call().handler(connection: connection)));
     router.delete(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(DeleteProject.call().handler(connection: connection)));
+      .addHandler(DeleteProject().handler(connection: connection)));
 
     //task management
     router.post(AppRoutes.tasks, Pipeline().addMiddleware(checkAuthorization())
@@ -84,8 +84,8 @@ class AppRouter{
     
     //<public>
 
-    router.post(AppRoutes.login, Login.call().handler(connection: connection));
-    router.post(AppRoutes.signUp, SignUp.call().handler(connection: connection));
+    router.post(AppRoutes.login, Login().handler(connection: connection));
+    router.post(AppRoutes.signUp, SignUp().handler(connection: connection));
 
     //</public>
   }

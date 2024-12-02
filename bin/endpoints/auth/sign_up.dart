@@ -1,53 +1,30 @@
 import 'dart:convert';
 
-import 'package:bcrypt/bcrypt.dart';
-import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
+
+import '../../data/auth/sign_up_repository.dart';
+import '../../data/repository_interface.dart';
 import '../../models/result_models.dart';
 import '../../models/sign_up_model.dart';
-import '../../mongo_connection.dart';
-import '../../utils/environment.dart';
+import '../../db_connection.dart';
 import '../../validators/auth/sign_in_validator.dart';
 import '../../validators/validator_interface.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class SignUp {
-  static IPostHandler call(){
-    final String dbType = Environment.getDBType();
-    switch (dbType){
-      case "MONGODB":{
-        return SignUpMongo();
-      }
-      case "POSTGRESQL":{
-        return SignUpProstgre();
-      }
-      default: throw UnimplementedError();
-    }
-  }
-}
-
-class SignUpMongo implements IPostHandler{
+class SignUp implements IPostHandler{
   @override
-  Future<Response> rootHandler(Request req, MongoConnection connection) async{
+  Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
       final signUpRequest = SignUpModel.fromJson(json.decode(await req.readAsString()));
       final validation = validator.validate(signUpRequest);
       if(validation.$1){
-        final Map<String, dynamic>? signUpRequestRaw = await connection.users.findOne(where.eq('email', signUpRequest.email));
-        if (signUpRequestRaw != null) {
-          final hashedPassword = BCrypt.hashpw(signUpRequest.password, BCrypt.gensalt());
-          await connection.users.insertOne({
-            "email": signUpRequest.email,
-            "password": hashedPassword,
-            "full_name": signUpRequest.fullName,
-            "avatar": signUpRequest.avatar,
-            "role": signUpRequest.role
-          });
-        }else{
-          return Response(400, body: json.encode(ErrorMessage(result: "User exists", statusCode: 400).toJson()));
+        final result = await repository.interact(connection: connection, credentials: signUpRequest);
+        if(result.$1){
+          return Response.ok(result.$2);
+        }else {
+          return Response(400, body: json.encode(ErrorMessage(result: result.$2, statusCode: 400).toJson()));
         }
-        return Response.ok( json.encode({"result": "success"}));
       }
       return Response(validation.$2 != null ? validation.$2!.statusCode : 400, body: validation.$2?.toJson().toString());
     }catch(e){
@@ -56,7 +33,7 @@ class SignUpMongo implements IPostHandler{
   }
 
   @override
-  Handler handler({required MongoConnection connection}) {
+  Handler handler({required DBConnection connection}) {
     return (Request req) => rootHandler(req, connection);
   }
 
@@ -66,24 +43,7 @@ class SignUpMongo implements IPostHandler{
   @override
   IValidator validator = SignUpValidator();
 
-}
-
-class SignUpProstgre implements IPostHandler{
-
   @override
-  Future<Response> rootHandler(Request req, MongoConnection connection) async{
-    throw UnimplementedError();
-  }
-
-  @override
-  Handler handler({required MongoConnection connection}) {
-    throw UnimplementedError();
-  }
-
-  @override
-  PermissionLevel get permissionLevel => PermissionLevel.unknown;
-
-  @override
-  IValidator validator = SignUpValidator();
+  IRepository<DBConnection, SignUpModel> get repository => SignUpRepository();
 
 }

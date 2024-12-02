@@ -4,17 +4,22 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 
 import 'middlewares/headers_middleware.dart';
-import 'mongo_connection.dart';
+import 'db_connection.dart';
 import 'router/router.dart';
 import 'utils/environment.dart';
 import 'utils/swagger_handler.dart';
 
 /// TODO: https://pub.dev/packages/flutter_quill/score
 void main(List<String> args) async {
-
-  String mongoConnectionString = Environment.getMongoURI();
+  
+  String mongoConnectionString = Environment.getDBUri();
   if (mongoConnectionString.isNotEmpty){
-    final MongoConnection connection = MongoConnection();
+    final DBConnection connection;
+    if(Environment.getDBType() == 'MONGODB'){
+      connection = MongoConnection();
+    }else{
+      connection = PostgreConnection();
+    }
     await connection.initialize(connectionString: mongoConnectionString);
     final ip = InternetAddress.anyIPv4;
     

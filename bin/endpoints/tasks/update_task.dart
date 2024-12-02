@@ -6,7 +6,7 @@ import 'package:shelf_router/shelf_router.dart';
 
 import '../../models/result_models.dart';
 import '../../models/task_model.dart';
-import '../../mongo_connection.dart';
+import '../../db_connection.dart';
 import '../../utils/environment.dart';
 import '../../validators/trasks/task_validator.dart';
 import '../../validators/validator_interface.dart';
@@ -30,7 +30,7 @@ class UpdateTask {
 
 class UpdateTaskMongo implements IPostHandler{
   @override
-  Future<Response> rootHandler(Request req, MongoConnection connection) async{
+  Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
       final PermissionLevel userPermission = PermissionLevel.fromInt(req.context["permissionLevel"] as int? ?? 0);
       final String? userId = req.context["userId"] as String?;
@@ -63,7 +63,7 @@ class UpdateTaskMongo implements IPostHandler{
   }
 
   @override
-  Handler handler({required MongoConnection connection}) {
+  Handler handler({required DBConnection connection}) {
     return (Request req) => rootHandler(req, connection);
   }
 
@@ -77,12 +77,12 @@ class UpdateTaskMongo implements IPostHandler{
 
 class UpdateTaskProstgre implements IPostHandler{
   @override
-  Future<Response> rootHandler(Request req, MongoConnection connection) async{
+  Future<Response> rootHandler(Request req, DBConnection connection) async{
     throw UnimplementedError();
   }
 
   @override
-  Handler handler({required MongoConnection connection}) {
+  Handler handler({required DBConnection connection}) {
     throw UnimplementedError();
   }
 

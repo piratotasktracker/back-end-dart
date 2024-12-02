@@ -6,7 +6,7 @@ import 'package:shelf/shelf.dart';
 import '../../models/project_model.dart';
 import '../../models/result_models.dart';
 import '../../models/user_db_model.dart';
-import '../../mongo_connection.dart';
+import '../../db_connection.dart';
 import '../../utils/environment.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
@@ -28,7 +28,7 @@ class GetProjects {
 
 class GetProjectsMongo implements IHandler{
   @override
-  Future<Response> rootHandler(Request req, MongoConnection connection) async{
+  Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
       final PermissionLevel userPermission = PermissionLevel.fromInt(req.context["permissionLevel"] as int? ?? 0);
       final String? userId = req.context["userId"] as String?;
@@ -54,7 +54,7 @@ class GetProjectsMongo implements IHandler{
   }
 
   @override
-  Handler handler({required MongoConnection connection}) {
+  Handler handler({required DBConnection connection}) {
     return (Request req) => rootHandler(req, connection);
   }
 
@@ -64,12 +64,12 @@ class GetProjectsMongo implements IHandler{
 
 class GetProjectsProstgre implements IHandler{
   @override
-  Future<Response> rootHandler(Request req, MongoConnection connection) async{
+  Future<Response> rootHandler(Request req, DBConnection connection) async{
     throw UnimplementedError();
   }
 
   @override
-  Handler handler({required MongoConnection connection}) {
+  Handler handler({required DBConnection connection}) {
     throw UnimplementedError();
   }
 
