@@ -35,7 +35,7 @@ class GetProjectsRepository extends IRepository<DBConnection, void>{
       }
       return (true, json.encode(result));
     }else{
-      return (false, 'Something went wrong');
+      throw Exception();
     }
   }
   

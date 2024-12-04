@@ -30,7 +30,7 @@ class GetTasksByProjectIdRepository extends IRepository<DBConnection, String>{
       final projects = tasksRaw.map((user) => TaskDBModel.fromJson(user)).toList();
       return (true, json.encode(projects.map((user) => user.toTaskResponse([]).toJson()).toList()));
     }else{
-      return (false, 'Something went wrong');
+      throw Exception();
     }
   }
   

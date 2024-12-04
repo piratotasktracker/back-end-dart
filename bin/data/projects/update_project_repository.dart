@@ -31,10 +31,10 @@ class UpdateProjectRepository extends IRepository<DBConnection, ProjectRequest>{
       if(result.isSuccess){
         return (true, json.encode(SuccessMessage(result: 'Project ${credentials.name} updated successfully', statusCode: 200).toJson()));
       }else{
-        return (false, 'Error updating project');  
+        throw FormatException();  
       }
     }else{
-      return (false, 'Something went wrong');
+      throw Exception();
     }
   }
   

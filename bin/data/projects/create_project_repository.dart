@@ -22,7 +22,7 @@ class CreateProjectRepository extends IRepository<DBConnection, ProjectRequest>{
     if(result.isSuccess){
       return (true, json.encode(SuccessMessage(result: 'Project ${credentials.name} created successfully', statusCode: 200)));
     }else{
-      return (false, 'Error creating project');  
+      throw FormatException(); 
     }
   }
   

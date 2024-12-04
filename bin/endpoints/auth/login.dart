@@ -4,7 +4,6 @@ import 'package:shelf/shelf.dart';
 
 import '../../data/auth/login_repository.dart';
 import '../../data/repository_interface.dart';
-import '../../models/result_models.dart';
 import '../../models/login_model.dart';
 import '../../db_connection.dart';
 import '../handler_interface.dart';
@@ -15,21 +14,17 @@ import '../../validators/validator_interface.dart';
 class Login implements IPostHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
-    try{
+    try {
       final credentials = LoginModel.fromJson(json.decode(await req.readAsString()));
-      final validation = validator.validate(credentials);
-      if(validation.$1){
-        final result = await repository.interact(connection: connection, credentials: credentials, params: req);
-        if(result.$1){
-          return Response.ok(json.encode({'token': result.$2}));
-        }else {
-          return Response.notFound(json.encode(ErrorMessage(result: result.$2, statusCode: 404).toJson()));
-        }
+      validator.validate(credentials);
+      final result = await repository.interact(connection: connection, credentials: credentials, params: req);
+      return Response.ok(json.encode({'token': result.$2}));
+    } catch(e){
+      if(e is Exception){
+        rethrow;
       }else{
-        return Response(validation.$2 != null ? validation.$2!.statusCode : 400, body: validation.$2?.toJson().toString());
+        throw Exception();
       }
-    }catch(e){
-      return Response.internalServerError(body: json.encode(ErrorMessage(result: 'Error login: $e', statusCode: 500).toJson()));
     }
   }
 
