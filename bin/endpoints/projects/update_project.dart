@@ -13,17 +13,13 @@ import '../../validators/validator_interface.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class UpdateProject implements IPostHandler{
+class UpdateProject with PermissionCheckMixin implements IPostHandler{
 
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
       final id = req.params['id'];
-      final PermissionLevel userPermission = PermissionLevel.fromInt(req.context["permissionLevel"] as int? ?? 0);
-      final String? userId = req.context["userId"] as String?;
-      if(userPermission.value < permissionLevel.value || userId == null){
-        throw UnauthorizedException();
-      }
+      checkPermission(req: req, permissionLevel: permissionLevel);
       if (id == null) {
         throw NotFoundException();
       }

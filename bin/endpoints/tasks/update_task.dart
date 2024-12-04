@@ -13,7 +13,7 @@ import '../../validators/validator_interface.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class UpdateTask implements IPostHandler{
+class UpdateTask with PermissionCheckMixin implements IPostHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{

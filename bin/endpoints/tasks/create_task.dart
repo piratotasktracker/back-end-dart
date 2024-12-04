@@ -6,22 +6,17 @@ import '../../data/repository_interface.dart';
 import '../../data/tasks/create_task_repository.dart';
 import '../../models/task_model.dart';
 import '../../db_connection.dart';
-import '../../utils/error_handler.dart';
 import '../../validators/trasks/task_validator.dart';
 import '../../validators/validator_interface.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class CreateTask implements IPostHandler{
+class CreateTask with PermissionCheckMixin implements IPostHandler{
 
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
-      final PermissionLevel userPermission = PermissionLevel.fromInt(req.context["permissionLevel"] as int? ?? 0);
-      final String? userId = req.context["userId"] as String?;
-      if(userPermission.value < permissionLevel.value || userId == null){
-        throw UnauthorizedException();
-      }
+      checkPermission(req: req, permissionLevel: permissionLevel);
       final credentials = TaskRequest.fromJson(json.decode(await req.readAsString()));
       validator.validate(credentials);
       final result = await repository.interact(connection: connection, credentials: credentials, params: req);

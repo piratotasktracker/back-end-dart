@@ -8,16 +8,12 @@ import '../../utils/error_handler.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class GetProject implements IHandler{
+class GetProject with PermissionCheckMixin implements IHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
       final id = req.params['id'];
-      final PermissionLevel userPermission = PermissionLevel.fromInt(req.context["permissionLevel"] as int? ?? 0);
-      final String? userId = req.context["userId"] as String?;
-      if(userPermission.value < permissionLevel.value || userId == null){
-        throw UnauthorizedException();
-      }
+      checkPermission(req: req, permissionLevel: permissionLevel);
       if (id == null) {
         throw NotFoundException();  
       }

@@ -17,7 +17,7 @@ class ErrorHandler {
         body: json.encode(ErrorMessage(result: 'BadRequest: ${error.message.isEmpty ? 'wrond format or id' : error.message}', statusCode: 400).toJson()),
       );
     } else if (error is UnauthorizedException) {
-      return Response.forbidden(jsonEncode(ErrorMessage(result: 'BadRequest: ${error.message}', statusCode: 401).toJson()));
+      return Response.forbidden(jsonEncode(ErrorMessage(result: error.message, statusCode: 401).toJson()));
     } else if (error is NotFoundException) {
       return Response.notFound(jsonEncode(ErrorMessage(result: error.message, statusCode: 404).toJson()));
     } else if (error is LoginException) {
