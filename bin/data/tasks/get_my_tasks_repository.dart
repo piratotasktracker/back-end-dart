@@ -21,7 +21,7 @@ class GetMyTasksRepository extends IRepository<DBConnection, void>{
       final users = projectsRaw.map((user) => TaskDBModel.fromJson(user)).toList();
       return (true, json.encode(users.map((user) => user.toTaskResponse([]).toJson()).toList()));
     }else{
-      return (false, 'Something went wrong');
+      throw Exception();
     }
   }
   

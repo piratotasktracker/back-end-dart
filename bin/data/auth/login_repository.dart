@@ -5,6 +5,7 @@ import 'package:shelf/shelf.dart';
 import '../../models/login_model.dart';
 import '../../models/user_db_model.dart';
 import '../../db_connection.dart';
+import '../../utils/error_handler.dart';
 import '../../utils/jwt_provider.dart';
 import '../repository_interface.dart';
 
@@ -18,13 +19,13 @@ class LoginRepository extends IRepository<DBConnection, LoginModel>{
   }) async{
     final userRaw = await connection.users.findOne(where.eq('email', credentials.email));
     if (userRaw == null) {
-      return (false, 'Incorrect login or password');
+      throw LoginException(); 
     }
     final user = UserDBModel.fromJson(userRaw);
     if (BCrypt.checkpw(credentials.password, user.password)) {
       return (true, JWTProvider.issueJwt(user.id, user.role));
     }
-    return (false, 'Incorrect login or password');  
+    throw LoginException(); 
   }
   
   @override

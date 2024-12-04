@@ -19,7 +19,7 @@ class DeleteTaskRepository extends IRepository<DBConnection, String>{
     if(result.isSuccess){
       return (true, json.encode(SuccessMessage(result: 'Task deleted successfully', statusCode: 200).toJson()));
     }else{
-      return (false, 'Error deleting task');  
+      throw FormatException();
     }
   }
   

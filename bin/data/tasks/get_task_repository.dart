@@ -5,6 +5,7 @@ import 'package:shelf/shelf.dart';
 
 import '../../db_connection.dart';
 import '../../models/task_model.dart';
+import '../../utils/error_handler.dart';
 import '../repository_interface.dart';
 
 class GetTaskRepository extends IRepository<DBConnection, String>{
@@ -18,13 +19,13 @@ class GetTaskRepository extends IRepository<DBConnection, String>{
     if(params != null){
       final taskRaw = await connection.tasks.findOne(where.eq('_id', ObjectId.fromHexString(credentials)));
       if (taskRaw == null) {
-        return (false, 'Task not found');
+        throw NotFoundException();
       }
       final task = TaskDBModel.fromJson(taskRaw);
       final linkedTasksRaw = await connection.tasks.find(where.oneFrom('_id', task.linkedTasks)).toList();
       return (true, json.encode(task.toTaskResponse(linkedTasksRaw.map((user) => ChildTaskResponse.fromJson(user)).toList()).toJson()));
     }else{
-      return (false, 'Task not found');
+      throw NotFoundException();
     }
   }
   

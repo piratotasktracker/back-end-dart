@@ -4,9 +4,9 @@ import 'package:shelf/shelf.dart';
 
 import '../../data/repository_interface.dart';
 import '../../data/tasks/create_task_repository.dart';
-import '../../models/result_models.dart';
 import '../../models/task_model.dart';
 import '../../db_connection.dart';
+import '../../utils/error_handler.dart';
 import '../../validators/trasks/task_validator.dart';
 import '../../validators/validator_interface.dart';
 import '../handler_interface.dart';
@@ -20,22 +20,18 @@ class CreateTask implements IPostHandler{
       final PermissionLevel userPermission = PermissionLevel.fromInt(req.context["permissionLevel"] as int? ?? 0);
       final String? userId = req.context["userId"] as String?;
       if(userPermission.value < permissionLevel.value || userId == null){
-        return Response.forbidden(json.encode(ErrorMessage(result: 'Permission denied', statusCode: 403).toJson()));
+        throw UnauthorizedException();
       }
       final credentials = TaskRequest.fromJson(json.decode(await req.readAsString()));
-      final validation = validator.validate(credentials);
-      if(validation.$1){
-        final result = await repository.interact(connection: connection, credentials: credentials, params: req);
-        if(result.$1){
-        return Response.ok(result.$2);
-      }else {
-        return Response(400, body: json.encode(ErrorMessage(result: result.$2, statusCode: 400).toJson()));
-      }
+      validator.validate(credentials);
+      final result = await repository.interact(connection: connection, credentials: credentials, params: req);
+      return Response.ok(result.$2);
+    } catch(e){
+      if(e is Exception){
+        rethrow;
       }else{
-        return Response(validation.$2 != null ? validation.$2!.statusCode : 400, body: validation.$2?.toJson().toString());
+        throw Exception();
       }
-    }catch(e){
-      return Response.internalServerError(body: json.encode(ErrorMessage(result: 'Error creating project: $e', statusCode: 500).toJson()));
     }
   }
 

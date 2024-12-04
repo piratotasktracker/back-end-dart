@@ -34,10 +34,10 @@ class UpdateTaskRepository extends IRepository<DBConnection, TaskRequest>{
       if(result.isSuccess){
         return (true, json.encode(SuccessMessage(result: 'Task ${credentials.name} updated successfully', statusCode: 200).toJson()));
       }else{
-        return (false, 'Error updating task');  
+        throw FormatException();
       }
     } else{
-      return (false, 'Something went wrong');
+      throw Exception();
     }
   }
   

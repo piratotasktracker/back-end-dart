@@ -19,7 +19,7 @@ class DeleteProjectRepository extends IRepository<DBConnection, String>{
     if(result.isSuccess){
       return (true, json.encode(SuccessMessage(result: 'Project deleted successfully', statusCode: 200).toJson()));
     }else{
-      return (false, 'Error deleting project');  
+      throw FormatException();
     }
   }
   

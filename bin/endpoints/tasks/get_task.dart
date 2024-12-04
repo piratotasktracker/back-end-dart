@@ -1,12 +1,10 @@
-import 'dart:convert';
-
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import '../../data/repository_interface.dart';
 import '../../data/tasks/get_task_repository.dart';
-import '../../models/result_models.dart';
 import '../../db_connection.dart';
+import '../../utils/error_handler.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
@@ -17,20 +15,20 @@ class GetTask implements IHandler{
       final PermissionLevel userPermission = PermissionLevel.fromInt(req.context["permissionLevel"] as int? ?? 0);
       final String? userId = req.context["userId"] as String?;
       if(userPermission.value < permissionLevel.value || userId == null){
-        return Response.forbidden(json.encode(ErrorMessage(result: 'Permission denied', statusCode: 403).toJson()));
+        throw UnauthorizedException();
       }
       final id = req.params['id'];
       if (id == null) {
-        return Response.badRequest(body: json.encode(ErrorMessage(result: 'Id is missing', statusCode: 400).toJson()));
+        throw NotFoundException();
       }
       final result = await repository.interact(connection: connection, credentials: id, params: req);
-      if(result.$1){
-        return Response.ok(result.$2);
+      return Response.ok(result.$2);
+    } catch(e){
+      if(e is Exception){
+        rethrow;
       }else{
-        return Response(400, body: json.encode(ErrorMessage(result: result.$2, statusCode: 404).toJson()));
+        throw Exception();
       }
-    }catch(e){
-      return Response.internalServerError(body: json.encode(ErrorMessage(result: 'Error fetching task: $e', statusCode: 500).toJson()));
     }
   }
 

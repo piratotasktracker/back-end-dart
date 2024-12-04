@@ -22,7 +22,7 @@ class CreateTaskRepository extends IRepository<DBConnection, TaskRequest>{
     if(result.isSuccess){
       return (true, json.encode(SuccessMessage(result: 'Task ${credentials.name} created successfully', statusCode: 200)));
     }else{
-      return (false, 'Error creating task');  
+      throw FormatException();
     }
   }
   

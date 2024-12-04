@@ -6,6 +6,7 @@ import 'package:shelf/shelf.dart';
 
 import '../../models/sign_up_model.dart';
 import '../../db_connection.dart';
+import '../../utils/error_handler.dart';
 import '../repository_interface.dart';
 
 class SignUpRepository extends IRepository<DBConnection, SignUpModel>{
@@ -27,7 +28,7 @@ class SignUpRepository extends IRepository<DBConnection, SignUpModel>{
         "role": credentials.role
       });
     }else{
-      return (false, 'User exists');
+      throw UserExistsException();
     }
     return (true, json.encode({"result": "success"}));
   }

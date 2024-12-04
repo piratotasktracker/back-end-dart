@@ -10,7 +10,7 @@ class ProjectValidator extends IValidator<ProjectRequest>{
     if(data.name.isEmpty){
       messageMap["name"] = "Can not be empty";
     }
-    return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(result: messageMap.toString(), statusCode: 400));
+    return messageMap.isEmpty ? (true, null) : throw FormatException(messageMap.toString());
   }
 
 }

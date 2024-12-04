@@ -7,6 +7,7 @@ import 'package:shelf_router/shelf_router.dart';
 import '../../db_connection.dart';
 import '../../models/project_model.dart';
 import '../../models/user_db_model.dart';
+import '../../utils/error_handler.dart';
 import '../../utils/permission_level.dart';
 import '../repository_interface.dart';
 
@@ -29,13 +30,13 @@ class GetProjectRepository extends IRepository<DBConnection, void>{
         projectRaw = await connection.projects.findOne(where.eq('_id', ObjectId.fromHexString(id??'')).eq('teamMembers', userId)); 
       }
       if (projectRaw == null) {
-        return (false, 'Project not found');
+        throw NotFoundException();
       }
       final ProjectDBModel project = ProjectDBModel.fromJson(projectRaw);
       final teamMembersRaw = await connection.users.find(where.oneFrom('_id', project.teamMembers.map((e) => ObjectId.fromHexString(e)).toList())).toList();
       return (true, json.encode(project.toProjectResponse(teamMembersRaw.map((user) => UserDBModel.fromJson(user).toUserResponse()).toList()).toJson()));
     }else{
-      return (false, 'Project not found');
+      throw NotFoundException();
     }
   }
   

@@ -19,6 +19,7 @@ import '../endpoints/users/get_user.dart';
 import '../endpoints/users/get_users.dart';
 import '../middlewares/check_authorization.dart';
 import '../db_connection.dart';
+import '../middlewares/error_middleware.dart';
 
 class CheckIfAlive{
 
@@ -42,50 +43,53 @@ class AppRouter{
 
   void initialize(){
 
+    final authorizedPipeline = Pipeline().addMiddleware(checkAuthorization()).addMiddleware(errorHandlingMiddleware());
+    final unauthorizedPipeline = Pipeline().addMiddleware(errorHandlingMiddleware());
+
     //<protected>
 
     //user management
-    router.get(AppRoutes.users, Pipeline().addMiddleware(checkAuthorization()) 
+    router.get(AppRoutes.users, authorizedPipeline 
       .addHandler(GetUsers().handler(connection: connection)));
-    router.get(AppRoutes.user, Pipeline().addMiddleware(checkAuthorization()) 
+    router.get(AppRoutes.user, authorizedPipeline 
       .addHandler(GetUser().handler(connection: connection)));
-    router.get(AppRoutes.me, Pipeline().addMiddleware(checkAuthorization()) 
+    router.get(AppRoutes.me, authorizedPipeline 
       .addHandler(GetMe().handler(connection: connection)));
 
     //project management
-    router.post(AppRoutes.projects, Pipeline().addMiddleware(checkAuthorization())
+    router.post(AppRoutes.projects, authorizedPipeline
       .addHandler(CreateProject().handler(connection: connection)));
-    router.get(AppRoutes.projects, Pipeline().addMiddleware(checkAuthorization())
+    router.get(AppRoutes.projects, authorizedPipeline
       .addHandler(GetProjects().handler(connection: connection)));
-    router.get(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
+    router.get(AppRoutes.project, authorizedPipeline
       .addHandler(GetProject().handler(connection: connection)));
-    router.put(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
+    router.put(AppRoutes.project, authorizedPipeline
       .addHandler(UpdateProject().handler(connection: connection)));
-    router.delete(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
+    router.delete(AppRoutes.project, authorizedPipeline
       .addHandler(DeleteProject().handler(connection: connection)));
 
     //task management
-    router.post(AppRoutes.tasks, Pipeline().addMiddleware(checkAuthorization())
+    router.post(AppRoutes.tasks, authorizedPipeline
       .addHandler(CreateTask().handler(connection: connection)));
-    router.get(AppRoutes.tasks, Pipeline().addMiddleware(checkAuthorization())
+    router.get(AppRoutes.tasks, authorizedPipeline
       .addHandler(GetTasks().handler(connection: connection)));
-    router.get(AppRoutes.task, Pipeline().addMiddleware(checkAuthorization())
+    router.get(AppRoutes.task, authorizedPipeline
       .addHandler(GetTask().handler(connection: connection)));
-    router.get(AppRoutes.taskByProjectId, Pipeline().addMiddleware(checkAuthorization())
+    router.get(AppRoutes.taskByProjectId, authorizedPipeline
       .addHandler(GetTasksByProjectId().handler(connection: connection)));
-    router.put(AppRoutes.task, Pipeline().addMiddleware(checkAuthorization())
+    router.put(AppRoutes.task, authorizedPipeline
       .addHandler(UpdateTask().handler(connection: connection)));
-    router.delete(AppRoutes.task, Pipeline().addMiddleware(checkAuthorization())
+    router.delete(AppRoutes.task, authorizedPipeline
       .addHandler(DeleteTask().handler(connection: connection)));
 
     //</protected>
     
     //<public>
 
-    router.get(AppRoutes.checkAlive, CheckIfAlive.handler(connection: connection));
+    router.get(AppRoutes.checkAlive, unauthorizedPipeline.addHandler(CheckIfAlive.handler(connection: connection)));
 
-    router.post(AppRoutes.login, Login().handler(connection: connection));
-    router.post(AppRoutes.signUp, SignUp().handler(connection: connection));
+    router.post(AppRoutes.login, unauthorizedPipeline.addHandler(Login().handler(connection: connection)));
+    router.post(AppRoutes.signUp, unauthorizedPipeline.addHandler(SignUp().handler(connection: connection)));
 
     //</public>
   }

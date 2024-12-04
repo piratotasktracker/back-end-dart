@@ -5,6 +5,7 @@ import 'package:shelf/shelf.dart';
 
 import '../../db_connection.dart';
 import '../../models/user_db_model.dart';
+import '../../utils/error_handler.dart';
 import '../repository_interface.dart';
 
 class GetUserRepository extends IRepository<DBConnection, String>{
@@ -15,9 +16,12 @@ class GetUserRepository extends IRepository<DBConnection, String>{
     required String credentials, 
     Request? params,
   }) async{
+    if(credentials.length<24){
+      throw FormatException();
+    }
     final userRaw = await connection.users.findOne(where.eq('_id', ObjectId.fromHexString(credentials)));
     if (userRaw == null) {
-      return (false, 'User not found');
+      throw NotFoundException();
     }
     final user = UserDBModel.fromJson(userRaw);
     return (true, json.encode(user.toUserResponse().toJson()));
