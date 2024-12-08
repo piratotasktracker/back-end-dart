@@ -15,7 +15,7 @@ class LoginValidator extends IValidator<LoginModel>{
     if(data.password.isEmpty){
       messageMap["password"]="Can not be empty";
     }
-    return messageMap.isEmpty ? (true, null) : (false, ErrorMessage(result: messageMap.toString(), statusCode: 400));
+    return messageMap.isEmpty ? (true, null) : throw FormatException(messageMap.toString());
   }
 
 }

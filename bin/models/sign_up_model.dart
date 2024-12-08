@@ -7,7 +7,7 @@ class SignUpModel{
   const SignUpModel({
     this.avatar,
     required this.email,
-    required this.fullName,
+    required this.full_name,
     required this.password,
     required this.role
   });
@@ -17,7 +17,7 @@ class SignUpModel{
   @JsonKey(name: "avatar")
   final String? avatar;
   @JsonKey(name: "full_name")
-  final String? fullName;
+  final String? full_name;
   @JsonKey(name: "password")
   final String password;
   @JsonKey(name: "role")

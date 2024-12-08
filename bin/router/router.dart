@@ -10,6 +10,7 @@ import '../endpoints/projects/get_projects.dart';
 import '../endpoints/projects/update_project.dart';
 import '../endpoints/tasks/create_task.dart';
 import '../endpoints/tasks/delete_task.dart';
+import '../endpoints/tasks/get_my_tasks.dart';
 import '../endpoints/tasks/get_task.dart';
 import '../endpoints/tasks/get_tasks.dart';
 import '../endpoints/projects/get_tasks_by_project_id.dart';
@@ -18,15 +19,16 @@ import '../endpoints/users/get_me.dart';
 import '../endpoints/users/get_user.dart';
 import '../endpoints/users/get_users.dart';
 import '../middlewares/check_authorization.dart';
-import '../mongo_connection.dart';
+import '../db_connection.dart';
+import '../middlewares/error_middleware.dart';
 
 class CheckIfAlive{
 
-  static Response _rootHandler(Request req, MongoConnection connection) {
-    return Response.ok('Sevice alive');
+  static Response _rootHandler(Request req, DBConnection connection) {
+    return Response.ok('Service alive');
   }
 
-  static Handler handler({required MongoConnection connection}) {
+  static Handler handler({required DBConnection connection}) {
     return (Request req) => _rootHandler(req, connection);
   }
 }
@@ -36,63 +38,68 @@ class AppRouter{
   AppRouter({
     required this.connection
   });
-  final MongoConnection connection;
+  final DBConnection connection;
 
   final router = Router();
 
   void initialize(){
 
+    final authorizedPipeline = Pipeline().addMiddleware(checkAuthorization()).addMiddleware(errorHandlingMiddleware());
+    final unauthorizedPipeline = Pipeline().addMiddleware(errorHandlingMiddleware());
+
     //<protected>
 
-    router.get(AppRoutes.checkAlive, CheckIfAlive.handler(connection: connection));
-
     //user management
-    router.get(AppRoutes.users, Pipeline().addMiddleware(checkAuthorization()) 
-      .addHandler(GetUsers.call().handler(connection: connection)));
-    router.get(AppRoutes.user, Pipeline().addMiddleware(checkAuthorization()) 
-      .addHandler(GetUser.call().handler(connection: connection)));
-    router.get(AppRoutes.me, Pipeline().addMiddleware(checkAuthorization()) 
-      .addHandler(GetMe.call().handler(connection: connection)));
+    router.get(_AppRoutes.users, authorizedPipeline 
+      .addHandler(GetUsers().handler(connection: connection)));
+    router.get(_AppRoutes.user, authorizedPipeline 
+      .addHandler(GetUser().handler(connection: connection)));
+    router.get(_AppRoutes.me, authorizedPipeline 
+      .addHandler(GetMe().handler(connection: connection)));
 
     //project management
-    router.post(AppRoutes.projects, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(CreateProject.call().handler(connection: connection)));
-    router.get(AppRoutes.projects, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(GetProjects.call().handler(connection: connection)));
-    router.get(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(GetProject.call().handler(connection: connection)));
-    router.put(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(UpdateProject.call().handler(connection: connection)));
-    router.delete(AppRoutes.project, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(DeleteProject.call().handler(connection: connection)));
+    router.post(_AppRoutes.projects, authorizedPipeline
+      .addHandler(CreateProject().handler(connection: connection)));
+    router.get(_AppRoutes.projects, authorizedPipeline
+      .addHandler(GetProjects().handler(connection: connection)));
+    router.get(_AppRoutes.project, authorizedPipeline
+      .addHandler(GetProject().handler(connection: connection)));
+    router.put(_AppRoutes.project, authorizedPipeline
+      .addHandler(UpdateProject().handler(connection: connection)));
+    router.delete(_AppRoutes.project, authorizedPipeline
+      .addHandler(DeleteProject().handler(connection: connection)));
 
     //task management
-    router.post(AppRoutes.tasks, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(CreateTask.call().handler(connection: connection)));
-    router.get(AppRoutes.tasks, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(GetTasks.call().handler(connection: connection)));
-    router.get(AppRoutes.task, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(GetTask.call().handler(connection: connection)));
-    router.get(AppRoutes.taskByProjectId, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(GetTasksByProjectId.call().handler(connection: connection)));
-    router.put(AppRoutes.task, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(UpdateTask.call().handler(connection: connection)));
-    router.delete(AppRoutes.task, Pipeline().addMiddleware(checkAuthorization())
-      .addHandler(DeleteTask.call().handler(connection: connection)));
+    router.post(_AppRoutes.tasks, authorizedPipeline
+      .addHandler(CreateTask().handler(connection: connection)));
+    router.get(_AppRoutes.myTasks, authorizedPipeline
+      .addHandler(GetMyTasks().handler(connection: connection)));
+    router.get(_AppRoutes.tasks, authorizedPipeline
+      .addHandler(GetTasks().handler(connection: connection)));
+    router.get(_AppRoutes.task, authorizedPipeline
+      .addHandler(GetTask().handler(connection: connection)));
+    router.get(_AppRoutes.taskByProjectId, authorizedPipeline
+      .addHandler(GetTasksByProjectId().handler(connection: connection)));
+    router.put(_AppRoutes.task, authorizedPipeline
+      .addHandler(UpdateTask().handler(connection: connection)));
+    router.delete(_AppRoutes.task, authorizedPipeline
+      .addHandler(DeleteTask().handler(connection: connection)));
 
     //</protected>
     
     //<public>
 
-    router.post(AppRoutes.login, Login.call().handler(connection: connection));
-    router.post(AppRoutes.signUp, SignUp.call().handler(connection: connection));
+    router.get(_AppRoutes.checkAlive, unauthorizedPipeline.addHandler(CheckIfAlive.handler(connection: connection)));
+
+    router.post(_AppRoutes.login, unauthorizedPipeline.addHandler(Login().handler(connection: connection)));
+    router.post(_AppRoutes.signUp, unauthorizedPipeline.addHandler(SignUp().handler(connection: connection)));
 
     //</public>
   }
     
 }
 
-class AppRoutes{
+class _AppRoutes{
   static const String checkAlive = '/';
   static const String users = '/users';
   static const String user = '/users/<id>';
@@ -102,6 +109,7 @@ class AppRoutes{
   static const String task = '/tasks/<id>';
   static const String taskByProjectId = '/projects/<id>/tasks/';
   static const String tasks = '/tasks';
+  static const String myTasks = '/tasks/me';
   static const String signUp = '/signUp';
   static const String login = '/login';
 }
