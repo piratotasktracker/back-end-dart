@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shelf/shelf.dart';
 
 import '../../db_connection.dart';
 import '../../models/task_model.dart';
+import '../../models/user_db_model.dart';
 import '../repository_interface.dart';
 
 
@@ -16,9 +18,22 @@ class GetTasksRepository extends IRepository<DBConnection, void>{
     required void credentials, 
     Request? params,
   }) async{
-    final projectsRaw = await connection.tasks.find().toList();
-    final users = projectsRaw.map((user) => TaskDBModel.fromJson(user)).toList();
-    return (true, json.encode(users.map((user) => user.toTaskResponse([]).toJson()).toList()));
+    final tasksRaw = await connection.tasks.find().toList();
+    final tasks = tasksRaw.map((task) => TaskDBModel.fromJson(task)).toList();
+    final taskResponses = await Future.wait(tasks.map((task) async {
+    final assigneeResponse = task.assigneeId != null
+      ? UserDBModel.fromJson((await connection.users.findOne(where.eq('_id', ObjectId.fromHexString(task.assigneeId!))))!).toUserResponse()
+      : null;
+    final createdByResponse = UserDBModel.fromJson((await connection.users.findOne(where.eq('_id', ObjectId.fromHexString(task.createdById))))!).toUserResponse();
+    return task.toTaskResponse(
+      newLinkedTasks: [],
+      assignee: assigneeResponse,
+      createdBy: createdByResponse,
+    ).toJson();
+  }).toList());
+
+  return (true, json.encode(taskResponses));
+
   }
   
   @override

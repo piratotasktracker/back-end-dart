@@ -5,6 +5,7 @@ import 'package:shelf/shelf.dart';
 
 import '../../db_connection.dart';
 import '../../models/task_model.dart';
+import '../../models/user_db_model.dart';
 import '../repository_interface.dart';
 
 class GetMyTasksRepository extends IRepository<DBConnection, void>{
@@ -17,9 +18,20 @@ class GetMyTasksRepository extends IRepository<DBConnection, void>{
   }) async{
     if(params != null){
       final String? userId = params.context["userId"] as String?;
-      final projectsRaw = await connection.tasks.find(where.eq("assigneeId", userId).eq("createdById", userId)).toList();
-      final users = projectsRaw.map((user) => TaskDBModel.fromJson(user)).toList();
-      return (true, json.encode(users.map((user) => user.toTaskResponse([]).toJson()).toList()));
+      final projectsRaw = await connection.tasks.find(where.eq("assigneeId", userId).or(where.eq("createdById", userId))).toList();
+      final tasks = projectsRaw.map((task) => TaskDBModel.fromJson(task)).toList();
+      final taskResponses = await Future.wait(tasks.map((task) async {
+      final assigneeResponse = task.assigneeId != null
+        ? UserDBModel.fromJson((await connection.users.findOne(where.eq('_id', ObjectId.fromHexString(task.assigneeId!))))!).toUserResponse()
+        : null;
+      final createdByResponse = UserDBModel.fromJson((await connection.users.findOne(where.eq('_id', ObjectId.fromHexString(task.createdById))))!).toUserResponse();
+      return task.toTaskResponse(
+        newLinkedTasks: [],
+        assignee: assigneeResponse,
+        createdBy: createdByResponse,
+      ).toJson();
+    }).toList());
+    return (true, json.encode(taskResponses));
     }else{
       throw Exception();
     }

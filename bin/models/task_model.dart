@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
 import '../utils/object_id_converter.dart';
+import 'user_db_model.dart';
 
 part 'task_model.g.dart';
 
@@ -14,7 +15,7 @@ abstract class ITaskModel{
   @JsonKey(name: "createdById")
   final String createdById;
   @JsonKey(name: "assigneeId")
-  final String assigneeId;
+  final String? assigneeId;
   @JsonKey(name: "description")
   final String description;
 
@@ -89,7 +90,11 @@ class TaskDBModel extends ITaskModel{
     required this.updatedAt,
   });
 
-  TaskResponse toTaskResponse(List<ChildTaskResponse> newLinkedTasks){
+  TaskResponse toTaskResponse({
+    required List<ChildTaskResponse> newLinkedTasks, 
+    UserResponse? assignee,
+    required UserResponse createdBy,
+  }){
     return TaskResponse(
       name: name, 
       id: id, 
@@ -99,7 +104,9 @@ class TaskDBModel extends ITaskModel{
       createdById: createdById,
       assigneeId: assigneeId,
       updatedAt: updatedAt, 
-      projectId: projectId
+      projectId: projectId,
+      assignee: assignee,
+      createdBy: createdBy,
     );
   }
 
@@ -117,6 +124,10 @@ class TaskResponse extends ITaskModel{
   final String createdAt;
   @JsonKey(name: "updatedAt")
   final String updatedAt;
+  @JsonKey(name: "assignee")
+  final UserResponse? assignee;
+  @JsonKey(name: "createdBy")
+  final UserResponse createdBy;
   @JsonKey(name: "linkedTasks")
   final List<ChildTaskResponse> linkedTasks;
 
@@ -130,6 +141,8 @@ class TaskResponse extends ITaskModel{
     required super.createdById,
     required super.assigneeId,
     required this.updatedAt,
+    this.assignee,
+    required this.createdBy
   });
 
   factory TaskResponse.fromJson(Map<String, dynamic> json) => _$TaskResponseFromJson(json);

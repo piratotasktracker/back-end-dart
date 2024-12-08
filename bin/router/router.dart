@@ -10,6 +10,7 @@ import '../endpoints/projects/get_projects.dart';
 import '../endpoints/projects/update_project.dart';
 import '../endpoints/tasks/create_task.dart';
 import '../endpoints/tasks/delete_task.dart';
+import '../endpoints/tasks/get_my_tasks.dart';
 import '../endpoints/tasks/get_task.dart';
 import '../endpoints/tasks/get_tasks.dart';
 import '../endpoints/projects/get_tasks_by_project_id.dart';
@@ -49,54 +50,56 @@ class AppRouter{
     //<protected>
 
     //user management
-    router.get(AppRoutes.users, authorizedPipeline 
+    router.get(_AppRoutes.users, authorizedPipeline 
       .addHandler(GetUsers().handler(connection: connection)));
-    router.get(AppRoutes.user, authorizedPipeline 
+    router.get(_AppRoutes.user, authorizedPipeline 
       .addHandler(GetUser().handler(connection: connection)));
-    router.get(AppRoutes.me, authorizedPipeline 
+    router.get(_AppRoutes.me, authorizedPipeline 
       .addHandler(GetMe().handler(connection: connection)));
 
     //project management
-    router.post(AppRoutes.projects, authorizedPipeline
+    router.post(_AppRoutes.projects, authorizedPipeline
       .addHandler(CreateProject().handler(connection: connection)));
-    router.get(AppRoutes.projects, authorizedPipeline
+    router.get(_AppRoutes.projects, authorizedPipeline
       .addHandler(GetProjects().handler(connection: connection)));
-    router.get(AppRoutes.project, authorizedPipeline
+    router.get(_AppRoutes.project, authorizedPipeline
       .addHandler(GetProject().handler(connection: connection)));
-    router.put(AppRoutes.project, authorizedPipeline
+    router.put(_AppRoutes.project, authorizedPipeline
       .addHandler(UpdateProject().handler(connection: connection)));
-    router.delete(AppRoutes.project, authorizedPipeline
+    router.delete(_AppRoutes.project, authorizedPipeline
       .addHandler(DeleteProject().handler(connection: connection)));
 
     //task management
-    router.post(AppRoutes.tasks, authorizedPipeline
+    router.post(_AppRoutes.tasks, authorizedPipeline
       .addHandler(CreateTask().handler(connection: connection)));
-    router.get(AppRoutes.tasks, authorizedPipeline
+    router.get(_AppRoutes.myTasks, authorizedPipeline
+      .addHandler(GetMyTasks().handler(connection: connection)));
+    router.get(_AppRoutes.tasks, authorizedPipeline
       .addHandler(GetTasks().handler(connection: connection)));
-    router.get(AppRoutes.task, authorizedPipeline
+    router.get(_AppRoutes.task, authorizedPipeline
       .addHandler(GetTask().handler(connection: connection)));
-    router.get(AppRoutes.taskByProjectId, authorizedPipeline
+    router.get(_AppRoutes.taskByProjectId, authorizedPipeline
       .addHandler(GetTasksByProjectId().handler(connection: connection)));
-    router.put(AppRoutes.task, authorizedPipeline
+    router.put(_AppRoutes.task, authorizedPipeline
       .addHandler(UpdateTask().handler(connection: connection)));
-    router.delete(AppRoutes.task, authorizedPipeline
+    router.delete(_AppRoutes.task, authorizedPipeline
       .addHandler(DeleteTask().handler(connection: connection)));
 
     //</protected>
     
     //<public>
 
-    router.get(AppRoutes.checkAlive, unauthorizedPipeline.addHandler(CheckIfAlive.handler(connection: connection)));
+    router.get(_AppRoutes.checkAlive, unauthorizedPipeline.addHandler(CheckIfAlive.handler(connection: connection)));
 
-    router.post(AppRoutes.login, unauthorizedPipeline.addHandler(Login().handler(connection: connection)));
-    router.post(AppRoutes.signUp, unauthorizedPipeline.addHandler(SignUp().handler(connection: connection)));
+    router.post(_AppRoutes.login, unauthorizedPipeline.addHandler(Login().handler(connection: connection)));
+    router.post(_AppRoutes.signUp, unauthorizedPipeline.addHandler(SignUp().handler(connection: connection)));
 
     //</public>
   }
     
 }
 
-class AppRoutes{
+class _AppRoutes{
   static const String checkAlive = '/';
   static const String users = '/users';
   static const String user = '/users/<id>';
@@ -106,6 +109,7 @@ class AppRoutes{
   static const String task = '/tasks/<id>';
   static const String taskByProjectId = '/projects/<id>/tasks/';
   static const String tasks = '/tasks';
+  static const String myTasks = '/tasks/me';
   static const String signUp = '/signUp';
   static const String login = '/login';
 }

@@ -10,9 +10,6 @@ class TaskValidator extends IValidator<TaskRequest>{
     if(data.name.isEmpty){
       messageMap["name"] = "Can not be empty";
     }
-    if(data.assigneeId.isEmpty){
-      messageMap["assigneId"] = "Can not be empty";
-    }
     if(data.createdById.isEmpty){
       messageMap["createdById"] = "Can not be empty";
     }

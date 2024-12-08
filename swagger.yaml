@@ -484,6 +484,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
+  /tasks/me:
+    get:
+      summary: Get my tasks
+      tags: 
+        - Task Management
+      responses:
+        '200':
+          description: Tasks list of user
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
 
 security:
   - bearerAuth: []

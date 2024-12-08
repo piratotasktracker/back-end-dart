@@ -13,14 +13,14 @@ abstract class IUserModel{
   @JsonKey(name: "avatar")
   final String? avatar;
   @JsonKey(name: "full_name")
-  final String full_name;
+  final String fullName;
   @JsonEnum(valueField: "role")
   final PermissionLevel role;
 
   const IUserModel({
     required this.avatar,
     required this.email,
-    required this.full_name,
+    required this.fullName,
     required this.role
   });
 }
@@ -37,7 +37,7 @@ class UserDBModel extends IUserModel{
     required super.avatar,
     required this.id,
     required super.email,
-    required super.full_name,
+    required super.fullName,
     required this.password,
     required super.role
   });
@@ -47,7 +47,7 @@ class UserDBModel extends IUserModel{
       avatar: avatar, 
       id: id, 
       email: email, 
-      full_name: full_name, 
+      fullName: fullName, 
       role: role
     );
   }
@@ -67,7 +67,7 @@ class UserResponse extends IUserModel{
     required super.avatar,
     required this.id,
     required super.email,
-    required super.full_name,
+    required super.fullName,
     required super.role
   });
 
