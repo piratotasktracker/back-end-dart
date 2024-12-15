@@ -20,7 +20,7 @@ class GetMeRepository extends IRepository<DBConnection, String>{
     if (userRaw == null) {
       throw NotFoundException();
     }
-    final user = UserDBModel.fromJson(userRaw);
+    final user = UserDBMongo.fromJson(userRaw);
     return (true, json.encode(user.toUserResponse().toJson()));
   }
   

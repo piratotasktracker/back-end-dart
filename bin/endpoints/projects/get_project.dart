@@ -20,6 +20,7 @@ class GetProject with PermissionCheckMixin implements IHandler{
       final result = await repository.interact(connection: connection, credentials: null, params: req);
       return Response.ok(result.$2);
     } catch(e){
+      print(e.toString());
       if(e is Exception){
         rethrow;
       }else{

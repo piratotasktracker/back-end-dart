@@ -1,4 +1,5 @@
 import 'package:mongo_dart/mongo_dart.dart';
+import 'package:postgres/postgres.dart';
 
 abstract class DBConnection<T>{
   
@@ -32,24 +33,27 @@ class MongoConnection extends DBConnection<Db>{
   
 }
 
-class PostgreConnection extends DBConnection<void>{
+class PostgreConnection extends DBConnection<PostgreSQLConnection>{
   PostgreConnection();
 
   @override
-  Future<void> initialize({required String connectionString}) async{
-    throw UnimplementedError();
+  Future<void> initialize({required String connectionString}) async {
+    final uri = Uri.parse(connectionString);
+
+    db = PostgreSQLConnection(
+      uri.host,
+      uri.port,
+      uri.pathSegments.first, // Database name
+      username: uri.userInfo.split(':').first,
+      password: uri.userInfo.split(':').last,
+    );
+    await db.open();
   }
 
   @override
-  Future<void> close() async{
-    throw UnimplementedError();
+  Future<void> close() async {
+    await db.close();
   }
-
-  DbCollection get users => throw UnimplementedError();
-
-  DbCollection get projects => throw UnimplementedError();
-
-  DbCollection get tasks => throw UnimplementedError();
   
 }
 

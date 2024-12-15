@@ -31,8 +31,41 @@ class CreateProjectRepository extends IRepository<DBConnection, ProjectRequest>{
     required PostgreConnection connection, 
     required ProjectRequest credentials, 
     Request? params,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    String now = DateTime.now().toIso8601String();
+    
+    try {
+      final result = await connection.db.query(
+        'INSERT INTO projects (name, description, created_at, updated_at) '
+        'VALUES (@name, @description, @created_at, @updated_at) RETURNING id',
+        substitutionValues: {
+          'name': credentials.name,
+          'description': credentials.description,
+          'created_at': now,
+          'updated_at': now,
+        },
+      );
+      
+      if (result.isNotEmpty) {
+        final projectId = result.first[0] as int; 
+        
+        for (var userId in credentials.teamMembers) {
+          await connection.db.query(
+            'INSERT INTO project_team_members (project_id, user_id) VALUES (@projectId, @userId)',
+            substitutionValues: {
+              'projectId': projectId,
+              'userId': int.tryParse(userId),
+            },
+          );
+        }
+        
+        return (true, json.encode(SuccessMessage(result: 'Project ${credentials.name} created successfully with ID: $projectId', statusCode: 200)));
+      } else {
+        throw FormatException('Failed to create project');
+      }
+    } catch (e) {
+      throw FormatException('Error while creating project: $e');
+    }
   }
 
 }

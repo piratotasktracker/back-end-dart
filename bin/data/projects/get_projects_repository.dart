@@ -27,11 +27,11 @@ class GetProjectsRepository extends IRepository<DBConnection, void>{
       }else{
         projectsRaw = await connection.projects.find(where.eq("teamMembers", userId)).toList();
       }
-      final projects = projectsRaw.map((project) => ProjectDBModel.fromJson(project)).toList();
+      final projects = projectsRaw.map((project) => ProjectDBMongo.fromJson(project)).toList();
       final List<ProjectResponse> result = [];
       for(var item in projects){
         final teamMembersRaw = await connection.users.find(where.oneFrom('_id', item.teamMembers.map((e) => ObjectId.fromHexString(e)).toList())).toList();
-        result.add(item.toProjectResponse(teamMembersRaw.map((user) => UserDBModel.fromJson(user).toUserResponse()).toList()));
+        result.add(item.toProjectResponse(teamMembersRaw.map((user) => UserDBMongo.fromJson(user).toUserResponse()).toList()));
       }
       return (true, json.encode(result));
     }else{

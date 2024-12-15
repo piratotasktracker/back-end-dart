@@ -38,8 +38,30 @@ class SignUpRepository extends IRepository<DBConnection, SignUpModel>{
     required PostgreConnection connection, 
     required SignUpModel credentials,
     Request? params,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    final result = await connection.db.query(
+      'SELECT id FROM users WHERE email = @email',
+      substitutionValues: {
+        'email': credentials.email
+      },
+    );
+    if (result.isNotEmpty) {
+      throw UserExistsException();
+    }
+    final hashedPassword = BCrypt.hashpw(credentials.password, BCrypt.gensalt());
+
+    await connection.db.query(
+      'INSERT INTO users (email, password, full_name, avatar, role) VALUES (@email, @password, @full_name, @avatar, @role)',
+      substitutionValues: {
+        'email': credentials.email,
+        'password': hashedPassword,
+        'full_name': credentials.full_name,
+        'avatar': credentials.avatar,
+        'role': credentials.role,
+      },
+    );
+
+    return (true, json.encode({"result": "success"}));
   }
 
 }

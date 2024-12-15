@@ -28,8 +28,27 @@ class DeleteProjectRepository extends IRepository<DBConnection, String>{
     required PostgreConnection connection, 
     required String credentials, 
     Request? params,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    final projectId = credentials;
+
+    await connection.db.transaction((ctx) async {
+
+      await ctx.query('DELETE FROM project_team_members WHERE project_id = @projectId', substitutionValues: {
+        'projectId': projectId,
+      });
+
+      final result = await ctx.query('DELETE FROM projects WHERE id = @id', substitutionValues: {
+        'id': projectId,
+      });
+
+      if (result.affectedRowCount == 0) {
+        throw FormatException('Project not found');
+      }
+
+      return true;
+    });
+
+    return (true, json.encode(SuccessMessage(result: 'Project deleted successfully', statusCode: 200).toJson()));
   }
 
 }

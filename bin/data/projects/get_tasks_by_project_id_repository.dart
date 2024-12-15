@@ -31,9 +31,9 @@ class GetTasksByProjectIdRepository extends IRepository<DBConnection, String>{
       final tasks = tasksRaw.map((task) => TaskDBModel.fromJson(task)).toList();
       final taskResponses = await Future.wait(tasks.map((task) async {
         final assigneeResponse = task.assigneeId != null
-          ? UserDBModel.fromJson((await connection.users.findOne(where.eq('_id', ObjectId.fromHexString(task.assigneeId!))))!).toUserResponse()
+          ? UserDBMongo.fromJson((await connection.users.findOne(where.eq('_id', ObjectId.fromHexString(task.assigneeId!))))!).toUserResponse()
           : null;
-        final createdByResponse = UserDBModel.fromJson((await connection.users.findOne(where.eq('_id', ObjectId.fromHexString(task.createdById))))!).toUserResponse();
+        final createdByResponse = UserDBMongo.fromJson((await connection.users.findOne(where.eq('_id', ObjectId.fromHexString(task.createdById))))!).toUserResponse();
         return task.toTaskResponse(
           newLinkedTasks: [],
           assignee: assigneeResponse,

@@ -52,8 +52,8 @@ class TaskRequest extends ITaskModel{
     required String updatedAt,
   }){
     return toJson()..addAll({
-      "createdAt": createdAt,
-      "updatedAt": updatedAt
+      "created_at": createdAt,
+      "updated_at": updatedAt
     });
   }
 
@@ -61,7 +61,7 @@ class TaskRequest extends ITaskModel{
     required String updatedAt,
   }){
     return toJson()..addAll({
-      "updatedAt": updatedAt
+      "updated_at": updatedAt
     });
   }
 }
@@ -71,9 +71,9 @@ class TaskDBModel extends ITaskModel{
   @JsonKey(name: '_id')
   @ObjectIdConverter()
   final String id;
-  @JsonKey(name: "createdAt")
+  @JsonKey(name: "created_at")
   final String createdAt;
-  @JsonKey(name: "updatedAt")
+  @JsonKey(name: "updated_at")
   final String updatedAt;
   @JsonKey(name: "linkedTasks")
   final List<String> linkedTasks;
@@ -120,9 +120,9 @@ class TaskDBModel extends ITaskModel{
 class TaskResponse extends ITaskModel{
   @JsonKey(name: 'id')
   final String id;
-  @JsonKey(name: "createdAt")
+  @JsonKey(name: "created_at")
   final String createdAt;
-  @JsonKey(name: "updatedAt")
+  @JsonKey(name: "updated_at")
   final String updatedAt;
   @JsonKey(name: "assignee")
   final UserResponse? assignee;
@@ -155,9 +155,9 @@ class TaskResponse extends ITaskModel{
 class ChildTaskResponse extends ITaskModel{
   @JsonKey(name: 'id')
   final String id;
-  @JsonKey(name: "createdAt")
+  @JsonKey(name: "created_at")
   final String createdAt;
-  @JsonKey(name: "updatedAt")
+  @JsonKey(name: "updated_at")
   final String updatedAt;
 
   const ChildTaskResponse({

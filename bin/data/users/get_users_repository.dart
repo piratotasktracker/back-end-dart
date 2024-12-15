@@ -15,7 +15,7 @@ class GetUsersRepository extends IRepository<DBConnection, void>{
     Request? params,
   }) async{
     final usersRaw = await connection.users.find().toList();
-    final users = usersRaw.map((user) => UserDBModel.fromJson(user)).toList();
+    final users = usersRaw.map((user) => UserDBMongo.fromJson(user)).toList();
     return (true, json.encode(users.map((user) => user.toUserResponse().toJson()).toList()));
   }
   

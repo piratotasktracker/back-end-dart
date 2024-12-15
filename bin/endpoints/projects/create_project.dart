@@ -24,6 +24,7 @@ class CreateProject with PermissionCheckMixin implements IPostHandler {
       if(e is Exception){
         rethrow;
       }else{
+        print(e);
         throw Exception();
       }
     }
