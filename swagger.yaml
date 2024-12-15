@@ -51,7 +51,7 @@ components:
         description:
           type: string
         linkedTasks: 
-          type: list
+          type: array
         createdById:
           type: string
         assigneeId:

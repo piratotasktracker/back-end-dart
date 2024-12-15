@@ -36,7 +36,7 @@ void main(List<String> args) async {
     final server = await serve(pipeline, ip, port);
     print('Server listening on port ${server.port}');
     ProcessSignal.sigint.watch().listen((signal) async {
-      print('Received SIGINT, closing MongoDB connection...');
+      print('Received SIGINT, closing DB connection...');
       await connection.close();
       await server.close();
       print('Server stopped');

@@ -110,7 +110,6 @@ class GetProjectsRepository extends IRepository<DBConnection, void>{
         }
       }
       final List<ProjectResponse> projects = projectMap.values.map((projectJson) {
-        print(projectJson.toString());
         final projectId = projectJson['id'];
         final teamMembersJson = teamMembersMap[projectId] ?? [];
         final teamMembers = teamMembersJson.map((userJson) {
