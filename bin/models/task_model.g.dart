@@ -28,7 +28,7 @@ Map<String, dynamic> _$TaskRequestToJson(TaskRequest instance) =>
       'linkedTasks': instance.linkedTasks,
     };
 
-TaskDBModel _$TaskDBModelFromJson(Map<String, dynamic> json) => TaskDBModel(
+TaskDBMongo _$TaskDBMongoFromJson(Map<String, dynamic> json) => TaskDBMongo(
       name: json['name'] as String,
       id: const ObjectIdConverter().fromJson(json['_id'] as ObjectId),
       projectId: json['projectId'] as String,
@@ -42,7 +42,7 @@ TaskDBModel _$TaskDBModelFromJson(Map<String, dynamic> json) => TaskDBModel(
       updatedAt: json['updated_at'] as String,
     );
 
-Map<String, dynamic> _$TaskDBModelToJson(TaskDBModel instance) =>
+Map<String, dynamic> _$TaskDBMongoToJson(TaskDBMongo instance) =>
     <String, dynamic>{
       'name': instance.name,
       'projectId': instance.projectId,
@@ -53,6 +53,30 @@ Map<String, dynamic> _$TaskDBModelToJson(TaskDBModel instance) =>
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
       'linkedTasks': instance.linkedTasks,
+    };
+
+TaskDBPostgre _$TaskDBPostgreFromJson(Map<String, dynamic> json) =>
+    TaskDBPostgre(
+      name: json['name'] as String,
+      id: (json['id'] as num).toInt(),
+      projectId: json['projectId'] as String,
+      description: json['description'] as String? ?? '',
+      assigneeId: json['assigneeId'] as String?,
+      createdById: json['createdById'] as String,
+      createdAt: json['created_at'] as String,
+      updatedAt: json['updated_at'] as String,
+    );
+
+Map<String, dynamic> _$TaskDBPostgreToJson(TaskDBPostgre instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'projectId': instance.projectId,
+      'createdById': instance.createdById,
+      'assigneeId': instance.assigneeId,
+      'description': instance.description,
+      'id': instance.id,
+      'created_at': instance.createdAt,
+      'updated_at': instance.updatedAt,
     };
 
 TaskResponse _$TaskResponseFromJson(Map<String, dynamic> json) => TaskResponse(

@@ -62,7 +62,7 @@ class UserDBMongo extends IUserModel{
 class UserDBPostgre extends IUserModel{
   final int id;
   @JsonKey(name: "password")
-  final String password;
+  final String? password;
 
   const UserDBPostgre({
     required super.avatar,

@@ -39,7 +39,7 @@ UserDBPostgre _$UserDBPostgreFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       email: json['email'] as String,
       fullName: json['full_name'] as String,
-      password: json['password'] as String,
+      password: json['password'] as String?,
       role: $enumDecode(_$PermissionLevelEnumMap, json['role']),
     );
 

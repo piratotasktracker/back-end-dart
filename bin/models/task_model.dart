@@ -67,7 +67,7 @@ class TaskRequest extends ITaskModel{
 }
 
 @JsonSerializable()
-class TaskDBModel extends ITaskModel{
+class TaskDBMongo extends ITaskModel{
   @JsonKey(name: '_id')
   @ObjectIdConverter()
   final String id;
@@ -78,7 +78,7 @@ class TaskDBModel extends ITaskModel{
   @JsonKey(name: "linkedTasks")
   final List<String> linkedTasks;
 
-  const TaskDBModel({
+  const TaskDBMongo({
     required super.name,
     required this.id,
     required super.projectId,
@@ -110,9 +110,54 @@ class TaskDBModel extends ITaskModel{
     );
   }
 
-  factory TaskDBModel.fromJson(Map<String, dynamic> json) => _$TaskDBModelFromJson(json);
+  factory TaskDBMongo.fromJson(Map<String, dynamic> json) => _$TaskDBMongoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$TaskDBModelToJson(this);
+  Map<String, dynamic> toJson() => _$TaskDBMongoToJson(this);
+
+}
+
+@JsonSerializable()
+class TaskDBPostgre extends ITaskModel{
+  final int id;
+  @JsonKey(name: "created_at")
+  final String createdAt;
+  @JsonKey(name: "updated_at")
+  final String updatedAt;
+
+  const TaskDBPostgre({
+    required super.name,
+    required this.id,
+    required super.projectId,
+    required super.description,
+    required super.assigneeId,
+    required super.createdById,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  TaskResponse toTaskResponse({
+    required List<ChildTaskResponse> newLinkedTasks, 
+    UserResponse? assignee,
+    required UserResponse createdBy,
+  }){
+    return TaskResponse(
+      name: name, 
+      id: id.toString(), 
+      linkedTasks: newLinkedTasks,
+      description: description, 
+      createdAt: createdAt, 
+      createdById: createdById,
+      assigneeId: assigneeId,
+      updatedAt: updatedAt, 
+      projectId: projectId,
+      assignee: assignee,
+      createdBy: createdBy,
+    );
+  }
+
+  factory TaskDBPostgre.fromJson(Map<String, dynamic> json) => _$TaskDBPostgreFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TaskDBPostgreToJson(this);
 
 }
 

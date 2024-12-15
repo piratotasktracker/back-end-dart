@@ -57,7 +57,7 @@ class LoginRepository extends IRepository<DBConnection, LoginModel> {
       print(result[0]);
       final user = UserDBPostgre.fromJson(userJson);
 
-      if (BCrypt.checkpw(credentials.password, user.password)) {
+      if (BCrypt.checkpw(credentials.password, user.password!)) {
         return (true, JWTProvider.issueJwt(user.id.toString(), user.role));
       }
 

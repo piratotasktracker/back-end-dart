@@ -20,6 +20,7 @@ class GetTask with PermissionCheckMixin implements IHandler{
       final result = await repository.interact(connection: connection, credentials: id, params: req);
       return Response.ok(result.$2);
     } catch(e){
+      print(e.toString());
       if(e is Exception){
         rethrow;
       }else{

@@ -7,6 +7,7 @@ import 'package:shelf_router/shelf_router.dart';
 import '../../models/project_model.dart';
 import '../../db_connection.dart';
 import '../../models/result_models.dart';
+import '../../utils/error_handler.dart';
 import '../repository_interface.dart';
 
 class UpdateProjectRepository extends IRepository<DBConnection, ProjectRequest>{
@@ -40,11 +41,48 @@ class UpdateProjectRepository extends IRepository<DBConnection, ProjectRequest>{
   
   @override
   Future<(bool, String)> interactPostgre({
-    required PostgreConnection connection, 
-    required ProjectRequest credentials, 
+    required PostgreConnection connection,
+    required ProjectRequest credentials,
     Request? params,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    if (params != null) {
+      final id = params.params['id'];
+      if (id == null) {
+        throw NotFoundException("Project ID is required.");
+      }
+
+      final String now = DateTime.now().toIso8601String();
+
+      final String query = '''
+        UPDATE projects
+        SET name = @name,
+            description = @description,
+            updated_at = @updatedAt
+        WHERE id = @id
+        RETURNING id, name, description, created_at, updated_at;
+      ''';
+
+      final result = await connection.db.query(query, substitutionValues: {
+        'id': int.parse(id),
+        'name': credentials.name,
+        'description': credentials.description,
+        'updatedAt': now,
+      });
+
+      if (result.isEmpty) {
+        throw NotFoundException("Project with ID $id not found.");
+      }
+
+      final updatedProject = result.first.toColumnMap();
+
+      return (true, json.encode(SuccessMessage(
+        result: 'Project ${updatedProject['name']} updated successfully',
+        statusCode: 200,
+      ).toJson()));
+    } else {
+      throw NotFoundException("Request parameters are missing.");
+    }
   }
+
 
 }
