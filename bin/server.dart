@@ -12,15 +12,15 @@ import 'utils/swagger_handler.dart';
 /// TODO: https://pub.dev/packages/flutter_quill/score
 void main(List<String> args) async {
   
-  String mongoConnectionString = Environment.getDBUri();
-  if (mongoConnectionString.isNotEmpty){
+  String dbConnectionString = Environment.getDBUri();
+  if (dbConnectionString.isNotEmpty){
     final DBConnection connection;
     if(Environment.getDBType() == 'MONGODB'){
       connection = MongoConnection();
     }else{
       connection = PostgreConnection();
     }
-    await connection.initialize(connectionString: mongoConnectionString);
+    await connection.initialize(connectionString: dbConnectionString);
     final ip = InternetAddress.anyIPv4;
     
     AppRouter router = AppRouter(connection: connection)..initialize();
