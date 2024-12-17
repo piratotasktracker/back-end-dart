@@ -26,14 +26,14 @@ abstract class IUserModel{
 }
 
 @JsonSerializable()
-class UserDBModel extends IUserModel{
+class UserDBMongo extends IUserModel{
   @JsonKey(name: '_id')
   @ObjectIdConverter()
   final String id;
   @JsonKey(name: "password")
   final String password;
 
-  const UserDBModel({
+  const UserDBMongo({
     required super.avatar,
     required this.id,
     required super.email,
@@ -52,9 +52,40 @@ class UserDBModel extends IUserModel{
     );
   }
 
-  factory UserDBModel.fromJson(Map<String, dynamic> json) => _$UserDBModelFromJson(json);
+  factory UserDBMongo.fromJson(Map<String, dynamic> json) => _$UserDBMongoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$UserDBModelToJson(this);
+  Map<String, dynamic> toJson() => _$UserDBMongoToJson(this);
+
+}
+
+@JsonSerializable()
+class UserDBPostgre extends IUserModel{
+  final int id;
+  @JsonKey(name: "password")
+  final String? password;
+
+  const UserDBPostgre({
+    required super.avatar,
+    required this.id,
+    required super.email,
+    required super.fullName,
+    required this.password,
+    required super.role
+  });
+
+  UserResponse toUserResponse(){
+    return UserResponse(
+      avatar: avatar, 
+      id: id.toString(), 
+      email: email, 
+      fullName: fullName, 
+      role: role
+    );
+  }
+
+  factory UserDBPostgre.fromJson(Map<String, dynamic> json) => _$UserDBPostgreFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UserDBPostgreToJson(this);
 
 }
 

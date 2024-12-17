@@ -41,6 +41,8 @@ components:
           type: string
         description:
           type: string
+        teamMembers: 
+          type: array
     DBTaskModel:
       type: object
       properties:
@@ -49,7 +51,7 @@ components:
         description:
           type: string
         linkedTasks: 
-          type: list
+          type: array
         createdById:
           type: string
         assigneeId:
@@ -64,7 +66,7 @@ components:
         avatar:
           type: string
           nullable: true
-        fullName:
+        full_name:
           type: string
         password:
           type: string
@@ -80,7 +82,7 @@ components:
         avatar:
           type: string
           nullable: true
-        fullName:
+        full_name:
           type: string
         role:
           type: integer
@@ -476,6 +478,20 @@ paths:
       responses:
         '200':
           description: Tasks list
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /tasks/me:
+    get:
+      summary: Get my tasks
+      tags: 
+        - Task Management
+      responses:
+        '200':
+          description: Tasks list of user
         '401':
           description: Unauthorized
           content:

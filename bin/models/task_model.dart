@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
 import '../utils/object_id_converter.dart';
+import 'user_db_model.dart';
 
 part 'task_model.g.dart';
 
@@ -14,7 +15,7 @@ abstract class ITaskModel{
   @JsonKey(name: "createdById")
   final String createdById;
   @JsonKey(name: "assigneeId")
-  final String assigneeId;
+  final String? assigneeId;
   @JsonKey(name: "description")
   final String description;
 
@@ -51,8 +52,8 @@ class TaskRequest extends ITaskModel{
     required String updatedAt,
   }){
     return toJson()..addAll({
-      "createdAt": createdAt,
-      "updatedAt": updatedAt
+      "created_at": createdAt,
+      "updated_at": updatedAt
     });
   }
 
@@ -60,24 +61,24 @@ class TaskRequest extends ITaskModel{
     required String updatedAt,
   }){
     return toJson()..addAll({
-      "updatedAt": updatedAt
+      "updated_at": updatedAt
     });
   }
 }
 
 @JsonSerializable()
-class TaskDBModel extends ITaskModel{
+class TaskDBMongo extends ITaskModel{
   @JsonKey(name: '_id')
   @ObjectIdConverter()
   final String id;
-  @JsonKey(name: "createdAt")
+  @JsonKey(name: "created_at")
   final String createdAt;
-  @JsonKey(name: "updatedAt")
+  @JsonKey(name: "updated_at")
   final String updatedAt;
   @JsonKey(name: "linkedTasks")
   final List<String> linkedTasks;
 
-  const TaskDBModel({
+  const TaskDBMongo({
     required super.name,
     required this.id,
     required super.projectId,
@@ -89,7 +90,11 @@ class TaskDBModel extends ITaskModel{
     required this.updatedAt,
   });
 
-  TaskResponse toTaskResponse(List<ChildTaskResponse> newLinkedTasks){
+  TaskResponse toTaskResponse({
+    required List<ChildTaskResponse> newLinkedTasks, 
+    UserResponse? assignee,
+    required UserResponse createdBy,
+  }){
     return TaskResponse(
       name: name, 
       id: id, 
@@ -99,13 +104,60 @@ class TaskDBModel extends ITaskModel{
       createdById: createdById,
       assigneeId: assigneeId,
       updatedAt: updatedAt, 
-      projectId: projectId
+      projectId: projectId,
+      assignee: assignee,
+      createdBy: createdBy,
     );
   }
 
-  factory TaskDBModel.fromJson(Map<String, dynamic> json) => _$TaskDBModelFromJson(json);
+  factory TaskDBMongo.fromJson(Map<String, dynamic> json) => _$TaskDBMongoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$TaskDBModelToJson(this);
+  Map<String, dynamic> toJson() => _$TaskDBMongoToJson(this);
+
+}
+
+@JsonSerializable()
+class TaskDBPostgre extends ITaskModel{
+  final int id;
+  @JsonKey(name: "created_at")
+  final String createdAt;
+  @JsonKey(name: "updated_at")
+  final String updatedAt;
+
+  const TaskDBPostgre({
+    required super.name,
+    required this.id,
+    required super.projectId,
+    required super.description,
+    required super.assigneeId,
+    required super.createdById,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  TaskResponse toTaskResponse({
+    required List<ChildTaskResponse> newLinkedTasks, 
+    UserResponse? assignee,
+    required UserResponse createdBy,
+  }){
+    return TaskResponse(
+      name: name, 
+      id: id.toString(), 
+      linkedTasks: newLinkedTasks,
+      description: description, 
+      createdAt: createdAt, 
+      createdById: createdById,
+      assigneeId: assigneeId,
+      updatedAt: updatedAt, 
+      projectId: projectId,
+      assignee: assignee,
+      createdBy: createdBy,
+    );
+  }
+
+  factory TaskDBPostgre.fromJson(Map<String, dynamic> json) => _$TaskDBPostgreFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TaskDBPostgreToJson(this);
 
 }
 
@@ -113,10 +165,14 @@ class TaskDBModel extends ITaskModel{
 class TaskResponse extends ITaskModel{
   @JsonKey(name: 'id')
   final String id;
-  @JsonKey(name: "createdAt")
+  @JsonKey(name: "created_at")
   final String createdAt;
-  @JsonKey(name: "updatedAt")
+  @JsonKey(name: "updated_at")
   final String updatedAt;
+  @JsonKey(name: "assignee")
+  final UserResponse? assignee;
+  @JsonKey(name: "createdBy")
+  final UserResponse createdBy;
   @JsonKey(name: "linkedTasks")
   final List<ChildTaskResponse> linkedTasks;
 
@@ -130,6 +186,8 @@ class TaskResponse extends ITaskModel{
     required super.createdById,
     required super.assigneeId,
     required this.updatedAt,
+    this.assignee,
+    required this.createdBy
   });
 
   factory TaskResponse.fromJson(Map<String, dynamic> json) => _$TaskResponseFromJson(json);
@@ -142,9 +200,9 @@ class TaskResponse extends ITaskModel{
 class ChildTaskResponse extends ITaskModel{
   @JsonKey(name: 'id')
   final String id;
-  @JsonKey(name: "createdAt")
+  @JsonKey(name: "created_at")
   final String createdAt;
-  @JsonKey(name: "updatedAt")
+  @JsonKey(name: "updated_at")
   final String updatedAt;
 
   const ChildTaskResponse({

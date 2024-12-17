@@ -5,7 +5,7 @@ abstract class IValidator<T> {
     if (data is! T) {
       return (
         false,
-        ErrorMessage(result: "Bad request: Invalid data type", statusCode: 400)
+        throw FormatException('Bad request: Invalid data type')
       );
     }
     return validateTyped(data);

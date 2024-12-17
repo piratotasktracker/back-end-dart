@@ -29,21 +29,43 @@ If you have [Docker Desktop](https://www.docker.com/get-started) installed, you
 can build and run with the `docker` command:
 
 ```
-$ docker build . -t myserver
-$ docker run -it -p 8080:8080 myserver
-Server listening on port 8080
-```
 
-And then from a second terminal:
-```
-$ curl http://0.0.0.0:8080
-Hello, World!
-$ curl http://0.0.0.0:8080/echo/I_love_Dart
-I_love_Dart
-```
+DB structure:
 
-You should see the logging printed in the first terminal:
-```
-2021-05-06T15:47:04.620417  0:00:00.000158 GET     [200] /
-2021-05-06T15:47:08.392928  0:00:00.001216 GET     [200] /echo/I_love_Dart
-```
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,   -- auto-increment for primary key
+  email VARCHAR(255) UNIQUE NOT NULL,
+  full_name VARCHAR(255) NOT NULL,
+  avatar VARCHAR(255),
+  password TEXT NOT NULL,  -- encrypted password
+  role INTEGER NOT NULL,  -- Enum can be added for validation (e.g., 'admin', 'user')
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE projects (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE tasks (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  project_id INT NOT NULL REFERENCES projects(id),  -- Foreign key reference to projects
+  created_by_id INT NOT NULL REFERENCES users(id),  -- Foreign key reference to users
+  assignee_id INT REFERENCES users(id),  -- Nullable foreign key reference to users
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE task_linked_tasks (
+  task_id INT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,  -- Foreign key to task
+  linked_task_id INT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,  -- Foreign key to another task
+  PRIMARY KEY (task_id, linked_task_id)
+);
+CREATE TABLE project_team_members (
+  project_id INT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  PRIMARY KEY (project_id, user_id)
+);
