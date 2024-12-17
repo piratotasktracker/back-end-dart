@@ -43,7 +43,7 @@ class PostgreConnection extends DBConnection<PostgreSQLConnection>{
     db = PostgreSQLConnection(
       uri.host,
       uri.port,
-      uri.pathSegments.first, // Database name
+      uri.pathSegments.first,
       username: uri.userInfo.split(':').first,
       password: uri.userInfo.split(':').last,
     );
