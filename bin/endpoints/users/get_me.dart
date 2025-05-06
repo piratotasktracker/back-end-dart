@@ -6,13 +6,12 @@ import '../../db_connection.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_level.dart';
 
-class GetMe with PermissionCheckMixin implements IHandler{
+class GetMe implements IHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
-      checkPermission(req: req, permissionLevel: permissionLevel);
       final String userId = req.context["userId"] as String;
-      final result = await repository.interact(connection: connection, credentials: userId, params: req);
+      final result = await repository.interact(connection: connection, credentials: userId, params: req, isBypassed: false);
       return Response.ok(result.$2);
     } catch(e){
       if(e is Exception){
@@ -24,14 +23,14 @@ class GetMe with PermissionCheckMixin implements IHandler{
   }
 
   @override
-  Handler handler({required DBConnection connection}) {
-    return (Request req) => rootHandler(req, connection);
-  }
-
-  @override
-  PermissionLevel get permissionLevel => PermissionLevel.executor;
+  List<ActionPermission> get permissionsList => [];
 
   @override
   IRepository<DBConnection, String> get repository => GetMeRepository();
+
+  @override
+  Handler handler({required DBConnection connection}) {
+    return (Request req) => rootHandler(req, connection);
+  }
 
 }

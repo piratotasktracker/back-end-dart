@@ -9,6 +9,7 @@ import '../../db_connection.dart';
 import '../../validators/trasks/task_validator.dart';
 import '../../validators/validator_interface.dart';
 import '../handler_interface.dart';
+import '../../utils/permission_check_mixin.dart';
 import '../../utils/permission_level.dart';
 
 class CreateTask with PermissionCheckMixin implements IPostHandler{
@@ -16,10 +17,10 @@ class CreateTask with PermissionCheckMixin implements IPostHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
-      checkPermission(req: req, permissionLevel: permissionLevel);
+      final bool isBypassed = await checkPermissions(permissionsList: permissionsList, connection: connection, params: req);
       final credentials = TaskRequest.fromJson(json.decode(await req.readAsString()));
       validator.validate(credentials);
-      final result = await repository.interact(connection: connection, credentials: credentials, params: req);
+      final result = await repository.interact(connection: connection, credentials: credentials, params: req, isBypassed: isBypassed);
       return Response.ok(result.$2);
     } catch(e){
       if(e is Exception){
@@ -31,17 +32,17 @@ class CreateTask with PermissionCheckMixin implements IPostHandler{
   }
 
   @override
-  Handler handler({required DBConnection connection}) {
-    return (Request req) => rootHandler(req, connection);
-  }
-
-  @override
-  PermissionLevel get permissionLevel => PermissionLevel.manager;
+  List<ActionPermission> get permissionsList => [ActionPermission.canCreateTasks];
   
   @override
   IValidator validator = TaskValidator();
 
   @override
   IRepository<DBConnection, TaskRequest> get repository => CreateTaskRepository();
+
+  @override
+  Handler handler({required DBConnection connection}) {
+    return (Request req) => rootHandler(req, connection);
+  }
 
 }

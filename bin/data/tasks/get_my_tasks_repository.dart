@@ -6,7 +6,6 @@ import 'package:shelf/shelf.dart';
 import '../../db_connection.dart';
 import '../../models/task_model.dart';
 import '../../models/user_db_model.dart';
-import '../../utils/permission_level.dart';
 import '../repository_interface.dart';
 
 class GetMyTasksRepository extends IRepository<DBConnection, void>{
@@ -16,6 +15,7 @@ class GetMyTasksRepository extends IRepository<DBConnection, void>{
     required MongoConnection connection, 
     required void credentials, 
     Request? params,
+    required bool isBypassed,
   }) async{
     if(params != null){
       final String? userId = params.context["userId"] as String?;
@@ -43,12 +43,11 @@ class GetMyTasksRepository extends IRepository<DBConnection, void>{
     required PostgreConnection connection, 
     required void credentials, 
     Request? params,
+    required bool isBypassed,
   }) async {
     try {
       final String? userId = params?.context["userId"] as String?;
       if (userId == null) throw Exception("User ID not provided");
-
-      final PermissionLevel userPermission = PermissionLevel.fromInt(params?.context["permissionLevel"] as int? ?? 0);
 
       String query = '''
         SELECT t.*, 
@@ -59,11 +58,8 @@ class GetMyTasksRepository extends IRepository<DBConnection, void>{
         LEFT JOIN users u_creator ON t.created_by_id = u_creator.id
         WHERE t.assignee_id = @userId OR t.created_by_id = @userId
       ''';
-
-      if (userPermission.value <= 2) {
-        query += ' AND (@userId = ANY(t.team_members))';
-      }
-
+      query += ' AND (@userId = ANY(t.team_members))';
+      
       final result = await connection.db.query(query, substitutionValues: {
         'userId': userId,
       });
@@ -89,7 +85,7 @@ class GetMyTasksRepository extends IRepository<DBConnection, void>{
                 fullName: taskData['assignee_name'],
                 avatar: taskData['assignee_avatar'],
                 email: taskData['assignee_email'],
-                role: PermissionLevel.fromInt(taskData['assignee_role']),
+                roleId: taskData['assignee_roleId'],
                 password: null,
               ).toUserResponse()
             : null;
@@ -99,7 +95,7 @@ class GetMyTasksRepository extends IRepository<DBConnection, void>{
           fullName: taskData['creator_name'],
           avatar: taskData['creator_avatar'],
           email: taskData['creator_email'],
-          role: PermissionLevel.fromInt(taskData['creator_role']),
+          roleId: taskData['creator_roleId'],
           password: null,
         ).toUserResponse();
 

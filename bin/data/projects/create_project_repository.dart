@@ -14,6 +14,7 @@ class CreateProjectRepository extends IRepository<DBConnection, ProjectRequest>{
     required MongoConnection connection, 
     required ProjectRequest credentials, 
     Request? params,
+    required bool isBypassed,
   }) async{
     String now = DateTime.now().toIso8601String();
     final result = await connection.projects.insertOne(
@@ -31,6 +32,7 @@ class CreateProjectRepository extends IRepository<DBConnection, ProjectRequest>{
     required PostgreConnection connection, 
     required ProjectRequest credentials, 
     Request? params,
+    required bool isBypassed,
   }) async {
     String now = DateTime.now().toIso8601String();
     

@@ -69,3 +69,30 @@ CREATE TABLE project_team_members (
   user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   PRIMARY KEY (project_id, user_id)
 );
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+
+    -- Projects
+    can_create_projects BOOLEAN DEFAULT FALSE,
+    can_update_projects BOOLEAN DEFAULT FALSE,
+    can_delete_projects BOOLEAN DEFAULT FALSE,
+    can_get_projects    BOOLEAN DEFAULT FALSE,
+
+    -- Tasks
+    can_create_tasks BOOLEAN DEFAULT FALSE,
+    can_update_tasks BOOLEAN DEFAULT FALSE,
+    can_delete_tasks BOOLEAN DEFAULT FALSE,
+    can_get_tasks    BOOLEAN DEFAULT FALSE,
+
+    -- Users
+    can_update_users BOOLEAN DEFAULT FALSE,
+    can_delete_users BOOLEAN DEFAULT FALSE,
+    can_get_users    BOOLEAN DEFAULT FALSE,
+
+    -- Roles
+    can_create_roles BOOLEAN DEFAULT FALSE,
+    can_update_roles BOOLEAN DEFAULT FALSE,
+    can_delete_roles BOOLEAN DEFAULT FALSE,
+    can_get_roles    BOOLEAN DEFAULT FALSE
+);

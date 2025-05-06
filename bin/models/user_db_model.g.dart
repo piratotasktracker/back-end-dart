@@ -12,7 +12,7 @@ UserDBMongo _$UserDBMongoFromJson(Map<String, dynamic> json) => UserDBMongo(
       email: json['email'] as String,
       fullName: json['full_name'] as String,
       password: json['password'] as String,
-      role: $enumDecode(_$PermissionLevelEnumMap, json['role']),
+      roleId: json['roleId'] as String,
     );
 
 Map<String, dynamic> _$UserDBMongoToJson(UserDBMongo instance) =>
@@ -20,18 +20,10 @@ Map<String, dynamic> _$UserDBMongoToJson(UserDBMongo instance) =>
       'email': instance.email,
       'avatar': instance.avatar,
       'full_name': instance.fullName,
-      'role': _$PermissionLevelEnumMap[instance.role]!,
+      'roleId': instance.roleId,
       '_id': const ObjectIdConverter().toJson(instance.id),
       'password': instance.password,
     };
-
-const _$PermissionLevelEnumMap = {
-  PermissionLevel.unknown: 0,
-  PermissionLevel.executor: 1,
-  PermissionLevel.manager: 2,
-  PermissionLevel.administrator: 3,
-  PermissionLevel.owner: 4,
-};
 
 UserDBPostgre _$UserDBPostgreFromJson(Map<String, dynamic> json) =>
     UserDBPostgre(
@@ -40,7 +32,7 @@ UserDBPostgre _$UserDBPostgreFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String,
       fullName: json['full_name'] as String,
       password: json['password'] as String?,
-      role: $enumDecode(_$PermissionLevelEnumMap, json['role']),
+      roleId: json['roleId'] as String,
     );
 
 Map<String, dynamic> _$UserDBPostgreToJson(UserDBPostgre instance) =>
@@ -48,7 +40,7 @@ Map<String, dynamic> _$UserDBPostgreToJson(UserDBPostgre instance) =>
       'email': instance.email,
       'avatar': instance.avatar,
       'full_name': instance.fullName,
-      'role': _$PermissionLevelEnumMap[instance.role]!,
+      'roleId': instance.roleId,
       'id': instance.id,
       'password': instance.password,
     };
@@ -58,7 +50,7 @@ UserResponse _$UserResponseFromJson(Map<String, dynamic> json) => UserResponse(
       id: json['id'] as String,
       email: json['email'] as String,
       fullName: json['full_name'] as String,
-      role: $enumDecode(_$PermissionLevelEnumMap, json['role']),
+      roleId: json['roleId'] as String,
     );
 
 Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
@@ -66,6 +58,6 @@ Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
       'email': instance.email,
       'avatar': instance.avatar,
       'full_name': instance.fullName,
-      'role': _$PermissionLevelEnumMap[instance.role]!,
+      'roleId': instance.roleId,
       'id': instance.id,
     };

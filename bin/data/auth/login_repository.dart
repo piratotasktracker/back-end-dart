@@ -16,14 +16,16 @@ class LoginRepository extends IRepository<DBConnection, LoginModel> {
     required MongoConnection connection, 
     required LoginModel credentials, 
     Request? params,
+    required bool isBypassed,
   }) async {
     final userRaw = await connection.users.findOne(where.eq('email', credentials.email));
+    print(userRaw?.entries.toString());
     if (userRaw == null) {
       throw LoginException(); 
     }
     final user = UserDBMongo.fromJson(userRaw);
     if (BCrypt.checkpw(credentials.password, user.password)) {
-      return (true, JWTProvider.issueJwt(user.id, user.role));
+      return (true, JWTProvider.issueJwt(user.id, user.roleId));
     }
     throw LoginException(); 
   }
@@ -33,6 +35,7 @@ class LoginRepository extends IRepository<DBConnection, LoginModel> {
     required PostgreConnection connection,
     required LoginModel credentials,
     Request? params,
+    required bool isBypassed,
   }) async {
     try{
       final result = await connection.db.query(
@@ -58,7 +61,7 @@ class LoginRepository extends IRepository<DBConnection, LoginModel> {
       final user = UserDBPostgre.fromJson(userJson);
 
       if (BCrypt.checkpw(credentials.password, user.password!)) {
-        return (true, JWTProvider.issueJwt(user.id.toString(), user.role));
+        return (true, JWTProvider.issueJwt(user.id.toString(), user.roleId));
       }
 
       throw LoginException();

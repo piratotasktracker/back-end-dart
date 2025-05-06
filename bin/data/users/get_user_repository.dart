@@ -6,7 +6,6 @@ import 'package:shelf/shelf.dart';
 import '../../db_connection.dart';
 import '../../models/user_db_model.dart';
 import '../../utils/error_handler.dart';
-import '../../utils/permission_level.dart';
 import '../repository_interface.dart';
 
 class GetUserRepository extends IRepository<DBConnection, String>{
@@ -16,6 +15,7 @@ class GetUserRepository extends IRepository<DBConnection, String>{
     required MongoConnection connection, 
     required String credentials, 
     Request? params,
+    required bool isBypassed,
   }) async{
     if(credentials.length<24){
       throw FormatException();
@@ -33,12 +33,13 @@ class GetUserRepository extends IRepository<DBConnection, String>{
     required PostgreConnection connection, 
     required String credentials, 
     Request? params,
+    required bool isBypassed,
   }) async {
     try {
 
       final result = await connection.db.query(
         '''
-        SELECT u.id, u.full_name, u.email, u.role, u.avatar
+        SELECT u.id, u.full_name, u.email, u.roleId, u.avatar
         FROM users u
         WHERE u.id = @userId
         ''',
@@ -54,7 +55,7 @@ class GetUserRepository extends IRepository<DBConnection, String>{
         id: userData['id'],
         fullName: userData['full_name'],
         email: userData['email'],
-        role: PermissionLevel.fromInt(userData['role']),
+        roleId: userData['roleId'],
         avatar: userData['avatar'],
         password: null,
       );

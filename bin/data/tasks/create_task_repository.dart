@@ -14,6 +14,7 @@ class CreateTaskRepository extends IRepository<DBConnection, TaskRequest>{
     required MongoConnection connection, 
     required TaskRequest credentials, 
     Request? params,
+    required bool isBypassed,
   }) async{
     String now = DateTime.now().toIso8601String();
     final result = await connection.tasks.insertOne(
@@ -31,6 +32,7 @@ class CreateTaskRepository extends IRepository<DBConnection, TaskRequest>{
     required PostgreConnection connection,
     required TaskRequest credentials,
     Request? params,
+    required bool isBypassed,
   }) async {
     final now = DateTime.now().toIso8601String();
 

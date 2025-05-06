@@ -16,6 +16,7 @@ class UpdateTaskRepository extends IRepository<DBConnection, TaskRequest>{
     required MongoConnection connection, 
     required TaskRequest credentials, 
     Request? params,
+    required bool isBypassed,
   }) async{
     if(params != null){
       String now = DateTime.now().toIso8601String();
@@ -46,6 +47,7 @@ class UpdateTaskRepository extends IRepository<DBConnection, TaskRequest>{
     required PostgreConnection connection,
     required TaskRequest credentials,
     Request? params,
+    required bool isBypassed,
   }) async {
     if (params != null) {
       try {

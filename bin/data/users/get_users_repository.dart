@@ -5,7 +5,6 @@ import 'package:shelf/shelf.dart';
 import '../../db_connection.dart';
 import '../../models/user_db_model.dart';
 import '../../utils/error_handler.dart';
-import '../../utils/permission_level.dart';
 import '../repository_interface.dart';
 
 class GetUsersRepository extends IRepository<DBConnection, void>{
@@ -15,6 +14,7 @@ class GetUsersRepository extends IRepository<DBConnection, void>{
     required MongoConnection connection, 
     required void credentials, 
     Request? params,
+    required bool isBypassed,
   }) async{
     final usersRaw = await connection.users.find().toList();
     final users = usersRaw.map((user) => UserDBMongo.fromJson(user)).toList();
@@ -26,11 +26,12 @@ class GetUsersRepository extends IRepository<DBConnection, void>{
     required PostgreConnection connection, 
     required void credentials, 
     Request? params,
+    required bool isBypassed,
   }) async {
     try {
       final result = await connection.db.query(
         '''
-        SELECT u.id, u.full_name, u.email, u.role, u.avatar
+        SELECT u.id, u.full_name, u.email, u.roleId, u.avatar
         FROM users u
       ''');
 
@@ -44,7 +45,7 @@ class GetUsersRepository extends IRepository<DBConnection, void>{
           id: userData['id'],
           fullName: userData['full_name'],
           email: userData['email'],
-          role: PermissionLevel.fromInt(userData['role']),
+          roleId: userData['roleId'],
           avatar: userData['avatar'],
           password: null,
         );

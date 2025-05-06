@@ -8,12 +8,12 @@ import '../endpoints/projects/delete_project.dart';
 import '../endpoints/projects/get_project.dart';
 import '../endpoints/projects/get_projects.dart';
 import '../endpoints/projects/update_project.dart';
+import '../endpoints/roles/create_role.dart';
 import '../endpoints/tasks/create_task.dart';
 import '../endpoints/tasks/delete_task.dart';
 import '../endpoints/tasks/get_my_tasks.dart';
 import '../endpoints/tasks/get_task.dart';
-import '../endpoints/tasks/get_tasks.dart';
-import '../endpoints/projects/get_tasks_by_project_id.dart';
+import '../endpoints/tasks/get_tasks_by_project_id.dart';
 import '../endpoints/tasks/update_task.dart';
 import '../endpoints/users/get_me.dart';
 import '../endpoints/users/get_user.dart';
@@ -74,8 +74,6 @@ class AppRouter{
       .addHandler(CreateTask().handler(connection: connection)));
     router.get(_AppRoutes.myTasks, authorizedPipeline
       .addHandler(GetMyTasks().handler(connection: connection)));
-    router.get(_AppRoutes.tasks, authorizedPipeline
-      .addHandler(GetTasks().handler(connection: connection)));
     router.get(_AppRoutes.task, authorizedPipeline
       .addHandler(GetTask().handler(connection: connection)));
     router.get(_AppRoutes.taskByProjectId, authorizedPipeline
@@ -84,6 +82,10 @@ class AppRouter{
       .addHandler(UpdateTask().handler(connection: connection)));
     router.delete(_AppRoutes.task, authorizedPipeline
       .addHandler(DeleteTask().handler(connection: connection)));
+
+    //roles management
+    router.post(_AppRoutes.roles, authorizedPipeline
+      .addHandler(CreateRole().handler(connection: connection)));
 
     //</protected>
     
@@ -112,4 +114,5 @@ class _AppRoutes{
   static const String myTasks = '/tasks/me';
   static const String signUp = '/signUp';
   static const String login = '/login';
+  static const String roles = '/roles';
 }

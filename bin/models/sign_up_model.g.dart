@@ -11,7 +11,7 @@ SignUpModel _$SignUpModelFromJson(Map<String, dynamic> json) => SignUpModel(
       email: json['email'] as String,
       full_name: json['full_name'] as String?,
       password: json['password'] as String,
-      role: (json['role'] as num?)?.toInt(),
+      roleId: json['roleId'] as String?,
     );
 
 Map<String, dynamic> _$SignUpModelToJson(SignUpModel instance) =>
@@ -20,5 +20,5 @@ Map<String, dynamic> _$SignUpModelToJson(SignUpModel instance) =>
       'avatar': instance.avatar,
       'full_name': instance.full_name,
       'password': instance.password,
-      'role': instance.role,
+      'roleId': instance.roleId,
     };

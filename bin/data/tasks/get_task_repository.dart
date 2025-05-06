@@ -8,7 +8,6 @@ import '../../db_connection.dart';
 import '../../models/task_model.dart';
 import '../../models/user_db_model.dart';
 import '../../utils/error_handler.dart';
-import '../../utils/permission_level.dart';
 import '../repository_interface.dart';
 
 class GetTaskRepository extends IRepository<DBConnection, String>{
@@ -18,6 +17,7 @@ class GetTaskRepository extends IRepository<DBConnection, String>{
     required MongoConnection connection, 
     required String credentials, 
     Request? params,
+    required bool isBypassed,
   }) async{
     if(params != null){
       final taskRaw = await connection.tasks.findOne(where.eq('_id', ObjectId.fromHexString(credentials)));
@@ -25,6 +25,16 @@ class GetTaskRepository extends IRepository<DBConnection, String>{
         throw NotFoundException();
       }
       final task = TaskDBMongo.fromJson(taskRaw);
+      if(isBypassed){
+        final String? userId = params.context["userId"] as String?;
+        final Map<String, dynamic>? projectRaw = await connection.projects.findOne(where
+          .eq('_id', ObjectId.fromHexString(task.projectId))
+          .oneFrom('teamMembers', [userId])
+        );
+        if (projectRaw == null) {
+          throw NotFoundException();
+        }
+      }
       final linkedTasksRaw = await connection.tasks.find(where.oneFrom('_id', task.linkedTasks)).toList();
       final assigneeResponse = task.assigneeId != null
         ? UserDBMongo.fromJson((await connection.users.findOne(where.eq('_id', ObjectId.fromHexString(task.assigneeId!))))!).toUserResponse()
@@ -47,14 +57,13 @@ class GetTaskRepository extends IRepository<DBConnection, String>{
     required PostgreConnection connection,
     required String credentials,
     Request? params,
+    required bool isBypassed,
   }) async {
     try {
       final String? id = params?.params['id'];
       if (id == null) throw NotFoundException();
 
       final String? userId = params?.context["userId"] as String?;
-      final PermissionLevel userPermission = PermissionLevel.fromInt(params?.context["permissionLevel"] as int? ?? 0);
-
       String query = '''
         SELECT t.*, 
                u_assignee.id AS assignee_id, u_assignee.full_name AS assignee_name, u_assignee.email AS assignee_email, u_assignee.role AS assignee_role, u_assignee.avatar AS assignee_avatar,
@@ -64,10 +73,7 @@ class GetTaskRepository extends IRepository<DBConnection, String>{
         LEFT JOIN users u_creator ON t.created_by_id = u_creator.id
         WHERE t.id = @id
       ''';
-
-      if (userPermission.value <= 2) {
-        query += ' AND (t.created_by = @userId OR @userId = ANY(t.team_members))';
-      }
+      query += ' AND (t.created_by = @userId OR @userId = ANY(t.team_members))';
 
       final result = await connection.db.query(query, substitutionValues: {
         'id': id,
@@ -118,7 +124,7 @@ class GetTaskRepository extends IRepository<DBConnection, String>{
         fullName: assigneeData.toColumnMap()['assignee_name'],
         avatar: assigneeData.toColumnMap()['assignee_avatar'],
         email: assigneeData.toColumnMap()['assignee_email'],
-        role: PermissionLevel.fromInt(assigneeData.toColumnMap()['assignee_role']),
+        roleId: assigneeData.toColumnMap()['assignee_roleId'],
         password: null,
       ).toUserResponse();
       final createdByResponse = UserDBPostgre(
@@ -126,7 +132,7 @@ class GetTaskRepository extends IRepository<DBConnection, String>{
         fullName: createdByData.toColumnMap()['creator_name'],
         avatar: createdByData.toColumnMap()['creator_avatar'],
         email: createdByData.toColumnMap()['creator_email'],
-        role: PermissionLevel.fromInt(createdByData.toColumnMap()['creator_role']),
+        roleId: createdByData.toColumnMap()['creator_roleId'],
         password: null,
       ).toUserResponse();
 

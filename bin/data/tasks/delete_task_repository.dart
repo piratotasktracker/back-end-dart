@@ -14,6 +14,7 @@ class DeleteTaskRepository extends IRepository<DBConnection, String>{
     required MongoConnection connection, 
     required String credentials, 
     Request? params,
+    required bool isBypassed,
   }) async{
     final result = await connection.tasks.deleteOne(where.eq('_id', ObjectId.fromHexString(credentials)));
     if(result.isSuccess){
@@ -28,6 +29,7 @@ class DeleteTaskRepository extends IRepository<DBConnection, String>{
     required PostgreConnection connection,
     required String credentials,
     Request? params,
+    required bool isBypassed,
   }) async {
     await connection.db.transaction((ctx) async {
       await ctx.query(

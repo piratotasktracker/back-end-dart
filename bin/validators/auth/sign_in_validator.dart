@@ -18,9 +18,6 @@ class SignUpValidator extends IValidator<SignUpModel>{
     if(data.password.isEmpty){
       messageMap["password"]="Can not be empty";
     }
-    if(data.role == null || data.role! > 3){
-      messageMap["role"] = "Can not be empty on higher than 3";
-    }
     return messageMap.isEmpty ? (true, null) : throw FormatException(messageMap.toString());  
   }
 

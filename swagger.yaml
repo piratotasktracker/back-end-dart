@@ -34,6 +34,62 @@ components:
           type: string
         password:
           type: string
+    RoleRequest:
+      type: object
+      required:
+        - name
+        - canCreateProjects
+        - canUpdateProjects
+        - canDeleteProjects
+        - canGetProjects
+        - canCreateTasks
+        - canUpdateTasks
+        - canDeleteTasks
+        - canGetTasks
+        - canUpdateUsers
+        - canDeleteUsers
+        - canGetUsers
+        - canCreateRoles
+        - canUpdateRoles
+        - canDeleteRoles
+        - canGetRoles
+      properties:
+        name:
+          type: string
+        canCreateProjects:
+          type: boolean
+        canUpdateProjects:
+          type: boolean
+        canDeleteProjects:
+          type: boolean
+        canGetProjects:
+          type: boolean
+
+        canCreateTasks:
+          type: boolean
+        canUpdateTasks:
+          type: boolean
+        canDeleteTasks:
+          type: boolean
+        canGetTasks:
+          type: boolean
+
+        canUpdateUsers:
+          type: boolean
+        canDeleteUsers:
+          type: boolean
+        canGetUsers:
+          type: boolean
+
+        canCreateRoles:
+          type: boolean
+        canUpdateRoles:
+          type: boolean
+        canDeleteRoles:
+          type: boolean
+        canGetRoles:
+          type: boolean
+
     DBProjectModel:
       type: object
       properties:
@@ -70,8 +126,8 @@ components:
           type: string
         password:
           type: string
-        role:
-          type: integer
+        roleId:
+          type: string
     UserResponse:
       type: object
       properties:
@@ -84,8 +140,8 @@ components:
           nullable: true
         full_name:
           type: string
-        role:
-          type: integer
+        roleId:
+          type: string
     ProjectResponse:
       type: object
       properties:
@@ -174,6 +230,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /roles:
+    post:
+      summary: Create role
+      tags: 
+        - Role Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleRequest'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Role created successfully
         '401':
           description: Unauthorized
           content:
@@ -427,7 +505,7 @@ paths:
     get:
       summary: Get a tasks by project id
       tags: 
-        - Project Management
+        - Task Management
       parameters:
         - name: id
           in: path
@@ -465,19 +543,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-    get:
-      summary: Get tasks
-      tags: 
-        - Task Management
-      responses:
-        '200':
-          description: Tasks list
         '401':
           description: Unauthorized
           content:

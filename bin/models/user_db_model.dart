@@ -2,7 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
 import '../utils/object_id_converter.dart';
-import '../utils/permission_level.dart';
 
 part 'user_db_model.g.dart';
 
@@ -14,14 +13,14 @@ abstract class IUserModel{
   final String? avatar;
   @JsonKey(name: "full_name")
   final String fullName;
-  @JsonEnum(valueField: "role")
-  final PermissionLevel role;
+  @JsonKey(name: "roleId")
+  final String roleId;
 
   const IUserModel({
     required this.avatar,
     required this.email,
     required this.fullName,
-    required this.role
+    required this.roleId
   });
 }
 
@@ -39,7 +38,7 @@ class UserDBMongo extends IUserModel{
     required super.email,
     required super.fullName,
     required this.password,
-    required super.role
+    required super.roleId
   });
 
   UserResponse toUserResponse(){
@@ -48,7 +47,7 @@ class UserDBMongo extends IUserModel{
       id: id, 
       email: email, 
       fullName: fullName, 
-      role: role
+      roleId: roleId
     );
   }
 
@@ -70,7 +69,7 @@ class UserDBPostgre extends IUserModel{
     required super.email,
     required super.fullName,
     required this.password,
-    required super.role
+    required super.roleId
   });
 
   UserResponse toUserResponse(){
@@ -79,7 +78,7 @@ class UserDBPostgre extends IUserModel{
       id: id.toString(), 
       email: email, 
       fullName: fullName, 
-      role: role
+      roleId: roleId
     );
   }
 
@@ -99,7 +98,7 @@ class UserResponse extends IUserModel{
     required this.id,
     required super.email,
     required super.fullName,
-    required super.role
+    required super.roleId
   });
 
   factory UserResponse.fromJson(Map<String, dynamic> json) => _$UserResponseFromJson(json);

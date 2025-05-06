@@ -4,14 +4,15 @@ import '../../data/projects/get_projects_repository.dart';
 import '../../data/repository_interface.dart';
 import '../../db_connection.dart';
 import '../handler_interface.dart';
+import '../../utils/permission_check_mixin.dart';
 import '../../utils/permission_level.dart';
 
 class GetProjects with PermissionCheckMixin implements IHandler{
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
     try{
-      checkPermission(req: req, permissionLevel: permissionLevel);
-      final result = await repository.interact(connection: connection, credentials: null, params: req);
+      final bool isBypassed = await checkPermissions(permissionsList: permissionsList, connection: connection, params: req);
+      final result = await repository.interact(connection: connection, credentials: null, params: req, isBypassed: isBypassed);
       return Response.ok(result.$2);
     } catch(e){
       if(e is Exception){
@@ -23,14 +24,14 @@ class GetProjects with PermissionCheckMixin implements IHandler{
   }
 
   @override
-  Handler handler({required DBConnection connection}) {
-    return (Request req) => rootHandler(req, connection);
-  }
-
-  @override
-  PermissionLevel get permissionLevel => PermissionLevel.executor;
+  List<ActionPermission> get permissionsList => [ActionPermission.canGetProjects];
 
   @override
   IRepository<DBConnection, void> get repository => GetProjectsRepository();
+
+  @override
+  Handler handler({required DBConnection connection}) {
+    return (Request req) => rootHandler(req, connection);
+  }
 
 }

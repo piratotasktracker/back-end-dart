@@ -16,6 +16,7 @@ class SignUpRepository extends IRepository<DBConnection, SignUpModel>{
     required MongoConnection connection, 
     required SignUpModel credentials,
     Request? params,
+    required bool isBypassed,
   }) async{
     final Map<String, dynamic>? signUpRequestRaw = await connection.users.findOne(where.eq('email', credentials.email));
     if (signUpRequestRaw == null) {
@@ -25,7 +26,7 @@ class SignUpRepository extends IRepository<DBConnection, SignUpModel>{
         "password": hashedPassword,
         "full_name": credentials.full_name,
         "avatar": credentials.avatar,
-        "role": credentials.role
+        "roleId": credentials.roleId
       });
     }else{
       throw UserExistsException();
@@ -38,6 +39,7 @@ class SignUpRepository extends IRepository<DBConnection, SignUpModel>{
     required PostgreConnection connection, 
     required SignUpModel credentials,
     Request? params,
+    required bool isBypassed,
   }) async {
     final result = await connection.db.query(
       'SELECT id FROM users WHERE email = @email',
@@ -51,13 +53,13 @@ class SignUpRepository extends IRepository<DBConnection, SignUpModel>{
     final hashedPassword = BCrypt.hashpw(credentials.password, BCrypt.gensalt());
 
     await connection.db.query(
-      'INSERT INTO users (email, password, full_name, avatar, role) VALUES (@email, @password, @full_name, @avatar, @role)',
+      'INSERT INTO users (email, password, full_name, avatar, roleId) VALUES (@email, @password, @full_name, @avatar, @role)',
       substitutionValues: {
         'email': credentials.email,
         'password': hashedPassword,
         'full_name': credentials.full_name,
         'avatar': credentials.avatar,
-        'role': credentials.role,
+        'roleId': credentials.roleId,
       },
     );
 

@@ -14,6 +14,7 @@ class DeleteProjectRepository extends IRepository<DBConnection, String>{
     required MongoConnection connection, 
     required String credentials, 
     Request? params,
+    required bool isBypassed,
   }) async{
     final result = await connection.projects.deleteOne(where.eq('_id', ObjectId.fromHexString(credentials)));
     if(result.isSuccess){
@@ -28,6 +29,7 @@ class DeleteProjectRepository extends IRepository<DBConnection, String>{
     required PostgreConnection connection, 
     required String credentials, 
     Request? params,
+    required bool isBypassed,
   }) async {
     final projectId = credentials;
 

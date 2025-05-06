@@ -17,6 +17,7 @@ class UpdateProjectRepository extends IRepository<DBConnection, ProjectRequest>{
     required MongoConnection connection, 
     required ProjectRequest credentials, 
     Request? params,
+    required bool isBypassed,
   }) async{
     if(params!=null){
       final String now = DateTime.now().toIso8601String();
@@ -44,6 +45,7 @@ class UpdateProjectRepository extends IRepository<DBConnection, ProjectRequest>{
     required PostgreConnection connection,
     required ProjectRequest credentials,
     Request? params,
+    required bool isBypassed,
   }) async {
     if (params != null) {
       final id = params.params['id'];

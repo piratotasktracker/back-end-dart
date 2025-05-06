@@ -22,7 +22,7 @@ Middleware checkAuthorization() {
         final session = JWT.verify(token, SecretKey(secretKey));
         return await handler(request.change(context: {
           'userId': (session.payload as Map<String, dynamic>)["id"],
-          'permissionLevel': (session.payload as Map<String, dynamic>)["permissionLevel"]
+          'roleId': (session.payload as Map<String, dynamic>)["roleId"]
         }));
       } catch (e) {
         return Response.forbidden(json.encode(ErrorMessage(result: 'Invalid or expired token', statusCode: 403).toJson()));

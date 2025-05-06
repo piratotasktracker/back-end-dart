@@ -30,6 +30,8 @@ class MongoConnection extends DBConnection<Db>{
   DbCollection get projects => db.collection(_Collection.projects);
 
   DbCollection get tasks => db.collection(_Collection.tasks);
+
+  DbCollection get roles => db.collection(_Collection.roles);
   
 }
 
@@ -63,4 +65,5 @@ class _Collection{
   static const String users = "users";
   static const String projects = "projects";
   static const String tasks = "tasks";
+  static const String roles = "roles";
 }
