@@ -1,22 +1,29 @@
 import 'dart:convert';
 
 import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
 
 import '../../data/repository_interface.dart';
-import '../../data/roles/create_role_repository.dart';
+import '../../data/roles/update_role_repository.dart';
 import '../../db_connection.dart';
 import '../../models/role_model.dart';
+import '../../utils/error_handler.dart';
 import '../../validators/roles/role_validator.dart';
 import '../../validators/validator_interface.dart';
 import '../handler_interface.dart';
 import '../../utils/permission_check_mixin.dart';
 import '../../utils/permission_level.dart';
 
-class CreateRole with PermissionCheckMixin implements IPostHandler {
+class UpdateRole with PermissionCheckMixin implements IPostHandler{
+
   @override
   Future<Response> rootHandler(Request req, DBConnection connection) async{
-    try {
+    try{
       final bool isBypassed = await checkPermissions(permissionsList: permissionsList, connection: connection, params: req);
+      final id = req.params['id'];
+      if (id == null) {
+        throw NotFoundException();
+      }
       final credentials = RoleRequest.fromJson(json.decode(await req.readAsString()));
       validator.validate(credentials);
       final result = await repository.interact(connection: connection, credentials: credentials, params: req, isBypassed: isBypassed);
@@ -32,17 +39,17 @@ class CreateRole with PermissionCheckMixin implements IPostHandler {
   }
 
   @override
-  List<ActionPermission> get permissionsList => [ActionPermission.canCreateRoles];
+  List<ActionPermission> get permissionsList => [ActionPermission.canUpdateRoles];
 
   @override
   IValidator validator = RoleValidator();
 
   @override
-  IRepository<DBConnection, RoleRequest> get repository => CreateRoleRepository();
+  IRepository<DBConnection, RoleRequest> get repository => UpdateRoleRepository();
 
   @override
   Handler handler({required DBConnection connection}) {
     return (Request req) => rootHandler(req, connection);
   }
-  
+
 }

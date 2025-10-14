@@ -9,11 +9,13 @@ part of 'status_model.dart';
 StatusModel _$StatusModelFromJson(Map<String, dynamic> json) => StatusModel(
       id: json['id'] as String,
       name: json['name'] as String,
+      color: json['color'] as String,
     );
 
 Map<String, dynamic> _$StatusModelToJson(StatusModel instance) =>
     <String, dynamic>{
       'name': instance.name,
+      'color': instance.color,
       'id': instance.id,
     };
 
@@ -21,10 +23,12 @@ StatusDBModel _$StatusDBModelFromJson(Map<String, dynamic> json) =>
     StatusDBModel(
       id: const ObjectIdConverter().fromJson(json['id'] as ObjectId),
       name: json['name'] as String,
+      color: json['color'] as String,
     );
 
 Map<String, dynamic> _$StatusDBModelToJson(StatusDBModel instance) =>
     <String, dynamic>{
       'name': instance.name,
+      'color': instance.color,
       'id': const ObjectIdConverter().toJson(instance.id),
     };

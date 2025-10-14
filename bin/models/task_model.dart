@@ -18,12 +18,14 @@ abstract class ITaskModel{
   final String? assigneeId;
   @JsonKey(name: "description")
   final String description;
+  final String? status;
 
   const ITaskModel({
     required this.name,
     required this.createdById,
     required this.projectId,
     required this.assigneeId,
+    this.status,
     this.description = '',
   });
 
@@ -37,6 +39,7 @@ class TaskRequest extends ITaskModel{
     required super.createdById,
     required super.assigneeId,
     required super.projectId,
+    super.status,
     this.linkedTasks = const [],
     super.description
   });
@@ -86,6 +89,7 @@ class TaskDBMongo extends ITaskModel{
     required super.assigneeId,
     required this.linkedTasks,
     required super.createdById,
+    super.status,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -133,6 +137,7 @@ class TaskDBPostgre extends ITaskModel{
     required super.createdById,
     required this.createdAt,
     required this.updatedAt,
+    super.status,
   });
 
   TaskResponse toTaskResponse({
@@ -187,6 +192,7 @@ class TaskResponse extends ITaskModel{
     required super.assigneeId,
     required this.updatedAt,
     this.assignee,
+    super.status,
     required this.createdBy
   });
 
@@ -213,6 +219,7 @@ class ChildTaskResponse extends ITaskModel{
     required super.createdById,
     required super.assigneeId,
     required this.updatedAt,
+    super.status,
     required super.projectId,
   });
 

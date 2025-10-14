@@ -9,9 +9,11 @@ abstract class IStatusModel{
 
   @JsonKey(name: "name")
   final String name;
+  final String color;
 
   const IStatusModel({
-    required this.name
+    required this.name,
+    required this.color,
   });
 
 }
@@ -21,7 +23,7 @@ class StatusModel extends IStatusModel {
   @JsonKey(name: "id")
   final String id;
 
-  const StatusModel({required this.id, required super.name});
+  const StatusModel({required this.id, required super.name, required super.color});
 
   factory StatusModel.fromJson(Map<String, dynamic> json) => _$StatusModelFromJson(json);
 
@@ -36,7 +38,7 @@ class StatusDBModel extends IStatusModel {
   @ObjectIdConverter()
   final String id; 
 
-  const StatusDBModel({required this.id, required super.name});
+  const StatusDBModel({required this.id, required super.name, required super.color});
 
   factory StatusDBModel.fromJson(Map<String, dynamic> json) => _$StatusDBModelFromJson(json);
 

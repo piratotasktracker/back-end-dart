@@ -11,6 +11,7 @@ TaskRequest _$TaskRequestFromJson(Map<String, dynamic> json) => TaskRequest(
       createdById: json['createdById'] as String,
       assigneeId: json['assigneeId'] as String?,
       projectId: json['projectId'] as String,
+      status: json['status'] as String?,
       linkedTasks: (json['linkedTasks'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
@@ -25,6 +26,7 @@ Map<String, dynamic> _$TaskRequestToJson(TaskRequest instance) =>
       'createdById': instance.createdById,
       'assigneeId': instance.assigneeId,
       'description': instance.description,
+      'status': instance.status,
       'linkedTasks': instance.linkedTasks,
     };
 
@@ -38,6 +40,7 @@ TaskDBMongo _$TaskDBMongoFromJson(Map<String, dynamic> json) => TaskDBMongo(
           .map((e) => e as String)
           .toList(),
       createdById: json['createdById'] as String,
+      status: json['status'] as String?,
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
     );
@@ -49,6 +52,7 @@ Map<String, dynamic> _$TaskDBMongoToJson(TaskDBMongo instance) =>
       'createdById': instance.createdById,
       'assigneeId': instance.assigneeId,
       'description': instance.description,
+      'status': instance.status,
       '_id': const ObjectIdConverter().toJson(instance.id),
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
@@ -65,6 +69,7 @@ TaskDBPostgre _$TaskDBPostgreFromJson(Map<String, dynamic> json) =>
       createdById: json['createdById'] as String,
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
+      status: json['status'] as String?,
     );
 
 Map<String, dynamic> _$TaskDBPostgreToJson(TaskDBPostgre instance) =>
@@ -74,6 +79,7 @@ Map<String, dynamic> _$TaskDBPostgreToJson(TaskDBPostgre instance) =>
       'createdById': instance.createdById,
       'assigneeId': instance.assigneeId,
       'description': instance.description,
+      'status': instance.status,
       'id': instance.id,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
@@ -94,6 +100,7 @@ TaskResponse _$TaskResponseFromJson(Map<String, dynamic> json) => TaskResponse(
       assignee: json['assignee'] == null
           ? null
           : UserResponse.fromJson(json['assignee'] as Map<String, dynamic>),
+      status: json['status'] as String?,
       createdBy:
           UserResponse.fromJson(json['createdBy'] as Map<String, dynamic>),
     );
@@ -105,6 +112,7 @@ Map<String, dynamic> _$TaskResponseToJson(TaskResponse instance) =>
       'createdById': instance.createdById,
       'assigneeId': instance.assigneeId,
       'description': instance.description,
+      'status': instance.status,
       'id': instance.id,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
@@ -122,6 +130,7 @@ ChildTaskResponse _$ChildTaskResponseFromJson(Map<String, dynamic> json) =>
       createdById: json['createdById'] as String,
       assigneeId: json['assigneeId'] as String?,
       updatedAt: json['updated_at'] as String,
+      status: json['status'] as String?,
       projectId: json['projectId'] as String,
     );
 
@@ -132,6 +141,7 @@ Map<String, dynamic> _$ChildTaskResponseToJson(ChildTaskResponse instance) =>
       'createdById': instance.createdById,
       'assigneeId': instance.assigneeId,
       'description': instance.description,
+      'status': instance.status,
       'id': instance.id,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,

@@ -3,24 +3,21 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 
 import '../../db_connection.dart';
-import '../../models/result_models.dart';
 import '../../models/role_model.dart';
 import '../repository_interface.dart';
 
-class CreateRoleRepository extends IRepository<DBConnection, RoleRequest> {
+class GetRolesRepository extends IRepository<DBConnection, void> {
 
   @override
   Future<(bool, String)> interactMongo({
     required MongoConnection connection, 
-    required RoleRequest credentials, 
+    required void credentials, 
     Request? params,
     required bool isBypassed,
   }) async{
-    final result = await connection.roles.insertOne(
-      credentials.toJson()
-    );
-    if(result.isSuccess){
-      return (true, json.encode(SuccessMessage(result: 'Role ${credentials.name} created successfully', statusCode: 200)));
+    final result = await connection.roles.find().toList();
+    if(result.isNotEmpty){
+      return (true, json.encode(result.map((project) => RoleMongoModel.fromJson(project)).toList()));
     }else{
       throw FormatException(); 
     }
@@ -29,7 +26,7 @@ class CreateRoleRepository extends IRepository<DBConnection, RoleRequest> {
   @override
   Future<(bool, String)> interactPostgre({
     required PostgreConnection connection, 
-    required RoleRequest credentials, 
+    required void credentials, 
     Request? params,
     required bool isBypassed,
   }){

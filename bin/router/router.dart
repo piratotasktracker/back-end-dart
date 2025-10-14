@@ -9,6 +9,9 @@ import '../endpoints/projects/get_project.dart';
 import '../endpoints/projects/get_projects.dart';
 import '../endpoints/projects/update_project.dart';
 import '../endpoints/roles/create_role.dart';
+import '../endpoints/roles/delete_role.dart';
+import '../endpoints/roles/get_roles.dart';
+import '../endpoints/roles/update_role.dart';
 import '../endpoints/tasks/create_task.dart';
 import '../endpoints/tasks/delete_task.dart';
 import '../endpoints/tasks/get_my_tasks.dart';
@@ -86,13 +89,17 @@ class AppRouter{
     //roles management
     router.post(_AppRoutes.roles, authorizedPipeline
       .addHandler(CreateRole().handler(connection: connection)));
-
+    router.delete(_AppRoutes.role, authorizedPipeline
+      .addHandler(DeleteRole().handler(connection: connection)));
+    router.put(_AppRoutes.role, authorizedPipeline
+      .addHandler(UpdateRole().handler(connection: connection)));
     //</protected>
     
     //<public>
 
     router.get(_AppRoutes.checkAlive, unauthorizedPipeline.addHandler(CheckIfAlive.handler(connection: connection)));
-
+    router.get(_AppRoutes.roles, unauthorizedPipeline
+      .addHandler(GetRoles().handler(connection: connection)));
     router.post(_AppRoutes.login, unauthorizedPipeline.addHandler(Login().handler(connection: connection)));
     router.post(_AppRoutes.signUp, unauthorizedPipeline.addHandler(SignUp().handler(connection: connection)));
 
@@ -115,4 +122,5 @@ class _AppRoutes{
   static const String signUp = '/signUp';
   static const String login = '/login';
   static const String roles = '/roles';
+  static const String role = '/roles/<id>';
 }
