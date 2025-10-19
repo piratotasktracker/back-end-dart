@@ -84,6 +84,36 @@ class RoleRequest extends IRoleModel {
 }
 
 @JsonSerializable()
+class RoleResponse extends IRoleModel {
+  final String id;
+  const RoleResponse({
+    required this.id,
+    required super.name,
+    required super.isAdmin,
+    required super.canCreateProjects,
+    required super.canCreateRoles,
+    required super.canCreateTasks,
+    required super.canDeleteProjects,
+    required super.canDeleteRoles,
+    required super.canDeleteTasks,
+    required super.canDeleteUsers,
+    required super.canGetProjects,
+    required super.canGetRoles,
+    required super.canGetTasks,
+    required super.canGetUsers,
+    required super.canUpdateProjects,
+    required super.canUpdateRoles,
+    required super.canUpdateTasks,
+    required super.canUpdateUsers,
+  });
+
+  factory RoleResponse.fromJson(Map<String, dynamic> json) => _$RoleResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RoleResponseToJson(this);
+
+}
+
+@JsonSerializable()
 class RoleMongoModel extends IRoleModel {
   
   @JsonKey(name: '_id')
@@ -110,6 +140,29 @@ class RoleMongoModel extends IRoleModel {
     required super.canUpdateTasks,
     required super.canUpdateUsers,
   });
+
+  RoleResponse toRoleResponse(){
+    return RoleResponse(
+      id: id, 
+      name: name, 
+      isAdmin: isAdmin, 
+      canCreateProjects: canCreateProjects, 
+      canCreateRoles: canCreateRoles, 
+      canCreateTasks: canCreateTasks, 
+      canDeleteProjects: canDeleteProjects, 
+      canDeleteRoles: canDeleteRoles, 
+      canDeleteTasks: canDeleteTasks, 
+      canDeleteUsers: canDeleteUsers, 
+      canGetProjects: canGetProjects, 
+      canGetRoles: canGetRoles, 
+      canGetTasks: canGetTasks, 
+      canGetUsers: canGetUsers, 
+      canUpdateProjects: canUpdateProjects, 
+      canUpdateRoles: canUpdateRoles, 
+      canUpdateTasks: canUpdateTasks, 
+      canUpdateUsers: canUpdateUsers,
+    );
+  }
 
   factory RoleMongoModel.fromJson(Map<String, dynamic> json) => _$RoleMongoModelFromJson(json);
 

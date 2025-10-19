@@ -17,7 +17,7 @@ class GetRolesRepository extends IRepository<DBConnection, void> {
   }) async{
     final result = await connection.roles.find().toList();
     if(result.isNotEmpty){
-      return (true, json.encode(result.map((project) => RoleMongoModel.fromJson(project)).toList()));
+      return (true, json.encode(result.map((project) => RoleMongoModel.fromJson(project).toRoleResponse()).toList()));
     }else{
       throw FormatException(); 
     }
