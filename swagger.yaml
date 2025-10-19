@@ -34,6 +34,67 @@ components:
           type: string
         password:
           type: string
+    RoleRequest:
+      type: object
+      required:
+        - name
+        - isAdmin
+        - canCreateProjects
+        - canUpdateProjects
+        - canDeleteProjects
+        - canGetProjects
+        - canCreateTasks
+        - canUpdateTasks
+        - canDeleteTasks
+        - canGetTasks
+        - canUpdateUsers
+        - canDeleteUsers
+        - canGetUsers
+        - canCreateRoles
+        - canUpdateRoles
+        - canDeleteRoles
+        - canGetRoles
+      properties:
+        name:
+          type: string
+
+        isAdmin:
+          type: boolean
+
+        canCreateProjects:
+          type: boolean
+        canUpdateProjects:
+          type: boolean
+        canDeleteProjects:
+          type: boolean
+        canGetProjects:
+          type: boolean
+
+        canCreateTasks:
+          type: boolean
+        canUpdateTasks:
+          type: boolean
+        canDeleteTasks:
+          type: boolean
+        canGetTasks:
+          type: boolean
+
+        canUpdateUsers:
+          type: boolean
+        canDeleteUsers:
+          type: boolean
+        canGetUsers:
+          type: boolean
+
+        canCreateRoles:
+          type: boolean
+        canUpdateRoles:
+          type: boolean
+        canDeleteRoles:
+          type: boolean
+        canGetRoles:
+          type: boolean
+
     DBProjectModel:
       type: object
       properties:
@@ -41,6 +102,8 @@ components:
           type: string
         description:
           type: string
+        teamMembers: 
+          type: array
     DBTaskModel:
       type: object
       properties:
@@ -49,7 +112,7 @@ components:
         description:
           type: string
         linkedTasks: 
-          type: list
+          type: array
         createdById:
           type: string
         assigneeId:
@@ -64,12 +127,12 @@ components:
         avatar:
           type: string
           nullable: true
-        fullName:
+        full_name:
           type: string
         password:
           type: string
-        role:
-          type: integer
+        roleId:
+          type: string
     UserResponse:
       type: object
       properties:
@@ -80,10 +143,10 @@ components:
         avatar:
           type: string
           nullable: true
-        fullName:
+        full_name:
           type: string
-        role:
-          type: integer
+        roleId:
+          type: string
     ProjectResponse:
       type: object
       properties:
@@ -172,6 +235,84 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /roles:
+    post:
+      summary: Create role
+      tags: 
+        - Role Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleRequest'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Role created successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    get:
+      summary: Get roles
+      tags: 
+        - Role Management
+      responses:
+        '200':
+          description: Roles list
+  /roles/{id}:
+    put:
+      summary: Update role
+      tags: 
+        - Role Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleRequest'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Role created successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    delete:
+      summary: Delete role
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      tags: 
+        - Role Management
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Role created successfully
         '401':
           description: Unauthorized
           content:
@@ -425,7 +566,7 @@ paths:
     get:
       summary: Get a tasks by project id
       tags: 
-        - Project Management
+        - Task Management
       parameters:
         - name: id
           in: path
@@ -469,13 +610,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
+  /tasks/me:
     get:
-      summary: Get tasks
+      summary: Get my tasks
       tags: 
         - Task Management
       responses:
         '200':
-          description: Tasks list
+          description: Tasks list of user
         '401':
           description: Unauthorized
           content:

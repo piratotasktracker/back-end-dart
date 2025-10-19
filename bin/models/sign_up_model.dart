@@ -7,9 +7,9 @@ class SignUpModel{
   const SignUpModel({
     this.avatar,
     required this.email,
-    required this.fullName,
+    required this.full_name,
     required this.password,
-    required this.role
+    required this.roleId
   });
 
   @JsonKey(name: "email")
@@ -17,11 +17,11 @@ class SignUpModel{
   @JsonKey(name: "avatar")
   final String? avatar;
   @JsonKey(name: "full_name")
-  final String? fullName;
+  final String? full_name;
   @JsonKey(name: "password")
   final String password;
-  @JsonKey(name: "role")
-  final int? role;
+  @JsonKey(name: "roleId")
+  final String? roleId;
 
   factory SignUpModel.fromJson(Map<String, dynamic> json) => _$SignUpModelFromJson(json);
 

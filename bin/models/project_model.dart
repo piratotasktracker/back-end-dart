@@ -21,9 +21,9 @@ abstract class IProjectModel{
 
 abstract class IExtendedProjectModel extends IProjectModel{
   
-  @JsonKey(name: "createdAt")
+  @JsonKey(name: "created_at")
   final String createdAt;
-  @JsonKey(name: "updatedAt")
+  @JsonKey(name: "updated_at")
   final String updatedAt;
 
   const IExtendedProjectModel({
@@ -56,8 +56,8 @@ class ProjectRequest extends IProjectModel{
     required String updatedAt,
   }){
     return toJson()..addAll({
-      "createdAt": createdAt,
-      "updatedAt": updatedAt
+      "created_at": createdAt,
+      "updated_at": updatedAt
     });
   }
 
@@ -65,20 +65,20 @@ class ProjectRequest extends IProjectModel{
     required String updatedAt,
   }){
     return toJson()..addAll({
-      "updatedAt": updatedAt
+      "updated_at": updatedAt
     });
   }
 }
 
 @JsonSerializable()
-class ProjectDBModel extends IExtendedProjectModel{
+class ProjectDBMongo extends IExtendedProjectModel{
   @JsonKey(name: '_id')
   @ObjectIdConverter()
   final String id;
   @JsonKey(name: "teamMembers")
   final List<String> teamMembers;
 
-  const ProjectDBModel({
+  const ProjectDBMongo({
     required super.name,
     required this.id,
     required super.description,
@@ -98,9 +98,38 @@ class ProjectDBModel extends IExtendedProjectModel{
     );
   }
 
-  factory ProjectDBModel.fromJson(Map<String, dynamic> json) => _$ProjectDBModelFromJson(json);
+  factory ProjectDBMongo.fromJson(Map<String, dynamic> json) => _$ProjectDBMongoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ProjectDBModelToJson(this);
+  Map<String, dynamic> toJson() => _$ProjectDBMongoToJson(this);
+
+}
+
+@JsonSerializable()
+class ProjectDBPostgre extends IExtendedProjectModel{
+  final int id;
+
+  const ProjectDBPostgre({
+    required super.name,
+    required this.id,
+    required super.description,
+    required super.createdAt,
+    required super.updatedAt,
+  });
+
+  ProjectResponse toProjectResponse(List<UserResponse> teamMembers){
+    return ProjectResponse(
+      name: name, 
+      id: id.toString(), 
+      description: description, 
+      createdAt: createdAt, 
+      updatedAt: updatedAt, 
+      teamMembers: teamMembers,
+    );
+  }
+
+  factory ProjectDBPostgre.fromJson(Map<String, dynamic> json) => _$ProjectDBPostgreFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ProjectDBPostgreToJson(this);
 
 }
 
